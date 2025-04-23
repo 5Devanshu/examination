@@ -12,6 +12,10 @@
      <!-- Using Arduino theme -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/arduino-light.min.css">
     <style>
+        /* Basic Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .code-block-container {
             position: relative; /* Needed for absolute positioning of button */
@@ -19,11 +23,13 @@
         }
         pre {
             padding: 1em;
-            padding-top: 2.5em; /* Add padding to top to avoid overlap with button */
+            padding-top: 3em; /* Increase top padding for button space */
             border-radius: 0.5em;
             overflow-x: auto;
             font-size: 0.9em;
             border: 1px solid #e1e4e8;
+            position: relative; /* Ensure it establishes a stacking context */
+            background-color: #f8f8f8; /* Light background for code */
         }
         code.hljs {
            background: none;
@@ -38,13 +44,14 @@
         }
         h2 {
             margin-bottom: 1rem;
-            color: #1e40af;
-            border-bottom: 2px solid #93c5fd;
+            color: #1e40af; /* Dark Blue heading */
+            border-bottom: 2px solid #93c5fd; /* Light blue underline */
             padding-bottom: 0.5rem;
-            font-weight: 600;
+            font-weight: 600; /* Semibold */
          }
-        h3 { margin-bottom: 0.75rem; color: #1f2937; font-weight: 500; }
+        h3 { margin-bottom: 0.75rem; color: #1f2937; font-weight: 500; padding-top: 1rem; /* Add padding to avoid nav overlap */}
         p { margin-bottom: 1rem; color: #4b5563; line-height: 1.6; }
+         /* Style for install/run command blocks */
         .run-command {
             background-color: #eef2ff; border-left: 4px solid #6366f1; color: #3730a3;
             padding: 1rem; margin-bottom: 1rem; border-radius: 0.25rem; font-size: 0.875rem;
@@ -61,6 +68,7 @@
             position: absolute;
             top: 0.5rem;
             right: 0.5rem;
+            z-index: 5; /* Ensure button is above code */
             background-color: #6b7280; /* Gray-500 */
             color: white;
             border: none;
@@ -78,6 +86,45 @@
          .copy-btn.copied {
              background-color: #10b981; /* Emerald-500 */
          }
+
+         /* Navigation Button Styles */
+         #navigation-buttons {
+             background-color: #e5e7eb; /* Gray-200 */
+             padding: 1rem;
+             margin-bottom: 2rem;
+             border-radius: 0.5rem;
+             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+         }
+         .nav-group-title {
+             font-weight: 600;
+             color: #4b5563; /* Gray-600 */
+             margin-bottom: 0.5rem;
+             margin-top: 0.75rem;
+             border-bottom: 1px solid #d1d5db; /* Gray-300 */
+             padding-bottom: 0.25rem;
+         }
+         .scroll-btn {
+             background-color: #60a5fa; /* Blue-400 */
+             color: white;
+             padding: 0.4rem 0.8rem;
+             border-radius: 0.375rem;
+             margin: 0.25rem;
+             font-size: 0.8rem;
+             cursor: pointer;
+             transition: background-color 0.2s;
+             border: none;
+             text-align: left;
+         }
+         .scroll-btn:hover {
+             background-color: #3b82f6; /* Blue-500 */
+         }
+         #scroll-to-top-btn {
+              background-color: #ef4444; /* Red-500 */
+         }
+         #scroll-to-top-btn:hover {
+              background-color: #dc2626; /* Red-600 */
+         }
+
     </style>
 </head>
 <body class="bg-gray-50">
@@ -90,6 +137,69 @@
     <main class="container mx-auto py-10 px-4">
 
         <!-- ==========================
+             NAVIGATION BUTTONS
+             ========================== -->
+        <div id="navigation-buttons">
+            <h3 class="text-lg font-semibold mb-4 text-center text-gray-700">Scroll To Experiment</h3>
+            <div class="flex flex-wrap justify-center">
+                <button id="scroll-to-top-btn" class="scroll-btn">Scroll To Top</button>
+            </div>
+            <div class="mt-4">
+                <h4 class="nav-group-title">1. Two-Pass Assembler</h4>
+                <div class="flex flex-wrap">
+                    <button class="scroll-btn" data-scroll-target="target-assembler-1a">1a. Sym/Lit Table</button>
+                    <button class="scroll-btn" data-scroll-target="target-assembler-1b">1b. Base Table/LC</button>
+                    <button class="scroll-btn" data-scroll-target="target-assembler-1c">1c. MOT/POT</button>
+                </div>
+            </div>
+             <div class="mt-4">
+                <h4 class="nav-group-title">2. Single-Pass Macro Processor</h4>
+                <div class="flex flex-wrap">
+                    <button class="scroll-btn" data-scroll-target="target-macro-2a">2a. MNT/MDT/ALA</button>
+                    <button class="scroll-btn" data-scroll-target="target-macro-2b">2b. Expand (Predefined)</button>
+                    <button class="scroll-btn" data-scroll-target="target-macro-2c">2c. Identify & Expand</button>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h4 class="nav-group-title">3. First & Follow Sets</h4>
+                 <div class="flex flex-wrap">
+                    <button class="scroll-btn" data-scroll-target="target-firstset">3a. First Set</button>
+                    <button class="scroll-btn" data-scroll-target="target-followset">3b. Follow Set</button>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h4 class="nav-group-title">4. Handwritten Lexical Analyzer</h4>
+                 <div class="flex flex-wrap">
+                    <button class="scroll-btn" data-scroll-target="target-lexer-4a">4a. Kwd/ID/Sym</button>
+                    <button class="scroll-btn" data-scroll-target="target-lexer-4b">4b. Num/ID/Preproc</button>
+                    <button class="scroll-btn" data-scroll-target="target-lexer-4c">4c. ID/Sym/No Comments</button>
+                </div>
+            </div>
+             <div class="mt-4">
+                <h4 class="nav-group-title">5. Automated Lexical Analyzer (Lex Tool)</h4>
+                 <div class="flex flex-wrap">
+                    <button class="scroll-btn" data-scroll-target="target-lex-tool">5. Lex Tool Example</button>
+                 </div>
+            </div>
+            <div class="mt-4">
+                <h4 class="nav-group-title">6. Code Optimization</h4>
+                 <div class="flex flex-wrap">
+                    <button class="scroll-btn" data-scroll-target="target-optimize-6a">6a. Alg. Simp./CSE</button>
+                    <button class="scroll-btn" data-scroll-target="target-optimize-6b">6b. Dead Code/Const. Prop.</button>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h4 class="nav-group-title">7. Intermediate Code Generation</h4>
+                 <div class="flex flex-wrap">
+                    <button class="scroll-btn" data-scroll-target="target-icg-7a">7a. Triples</button>
+                    <button class="scroll-btn" data-scroll-target="target-icg-7b">7b. Quadruples</button>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- ==========================
              TWO-PASS ASSEMBLER
              ========================== -->
         <div class="code-container">
@@ -97,15 +207,19 @@
 
             <!-- Pass 1: Symbol/Literal Table -->
             <div>
-                <h3 class="text-xl">1a. Pass 1: Generate Symbol Table & Literal Table</h3>
+                <h3 id="target-assembler-1a" class="text-xl">1a. Pass 1: Generate Symbol Table & Literal Table</h3>
                 <p>Simulates assembler Pass 1 to build the Symbol Table (symbols and their addresses) and Literal Table (literals encountered and their assigned addresses, often allocated during LTORG or END).</p>
                  <div class="run-command">
                     <strong>Language:</strong> Python<br>
+                    <strong>Libraries:</strong> Pandas (for display)<br>
+                    <strong>Install:</strong> <code>pip install pandas</code><br>
                     <strong>Execution:</strong> <code>python assembler_pass1_sym_lit.py</code> (Save code as this file)
                 </div>
                  <div class="code-block-container">
                      <button class="copy-btn" data-target-id="code-assembler-1a">Copy</button>
                     <pre id="code-assembler-1a"><code class="language-python">
+# Paste Python code for Assembler 1a here...
+# (Code from previous answer)
 import pandas as pd
 
 def is_opcode(mnemonic):
@@ -144,7 +258,7 @@ def pass1(source_code):
         # Basic parsing (assumes simple structure)
         idx = 0
         # Check for label (if first part isn't opcode/directive)
-        if len(parts) > 0 and not is_opcode(parts[idx]) and not is_directive(parts[idx]):
+        if len(parts) > 0 and parts[idx].strip() and not is_opcode(parts[idx]) and not is_directive(parts[idx]):
             label = parts[idx]
             idx += 1
 
@@ -162,7 +276,11 @@ def pass1(source_code):
         # Handle START directive
         if opcode == 'START':
             if operand:
-                location_counter = int(operand)
+                try:
+                    location_counter = int(operand)
+                except ValueError:
+                     print(f"Error: Invalid START address '{operand}'")
+                     location_counter = 0 # Default to 0 on error
             continue # Don't increment LC for START itself
 
         # Handle Label
@@ -184,16 +302,20 @@ def pass1(source_code):
 
         # Handle LTORG or END (Process Literal Pool)
         if opcode == 'LTORG' or opcode == 'END':
-            print(f"   -> Processing Literal Pool #{pool_tab_index}")
-            for entry in literal_pool:
-                # Assign address only if not already assigned and belongs to current pool
-                if entry['address'] is None and entry['pool'] == pool_tab_index:
-                    print(f"{location_counter:<8}{'*':<10}{entry['literal']:<10}")
-                    entry['address'] = location_counter
-                    literal_table[entry['literal']]['address'] = location_counter # Update main table
-                    location_counter += 1 # Assume each literal takes 1 unit
-            if opcode == 'LTORG':
-                 pool_tab_index += 1 # Move to the next pool index
+            if literal_pool: # Check if pool is not empty
+                 print(f"   -> Processing Literal Pool #{pool_tab_index}")
+                 items_in_current_pool = [item for item in literal_pool if item['pool'] == pool_tab_index and item['address'] is None]
+                 if items_in_current_pool:
+                     for entry in items_in_current_pool:
+                          print(f"{location_counter:<8}{'*':<10}{entry['literal']:<10}")
+                          entry['address'] = location_counter
+                          literal_table[entry['literal']]['address'] = location_counter # Update main table
+                          location_counter += 1 # Assume each literal takes 1 unit
+                     if opcode == 'LTORG':
+                         pool_tab_index += 1 # Move to the next pool index for subsequent literals
+                 else:
+                      print(f"   -> Literal Pool #{pool_tab_index} already processed or empty.")
+
             if opcode == 'END':
                 break # Stop processing
 
@@ -202,11 +324,14 @@ def pass1(source_code):
             location_counter += 1 # Assume 1 word per instruction
         elif opcode == 'DS': # Define Storage
             if operand:
-                location_counter += int(operand)
+                 try:
+                     location_counter += int(operand)
+                 except ValueError:
+                      print(f"Error: Invalid DS operand '{operand}'")
         elif opcode == 'DC': # Define Constant
-            location_counter += 1 # Assume 1 word
+            location_counter += 1 # Assume 1 word for the constant itself
 
-        # ORIGIN and EQU need special handling (more complex)
+        # ORIGIN and EQU need special evaluation logic not implemented here
 
     print("-" * 50)
     return symbol_table, literal_table, literal_pool # Return final pool too for inspection
@@ -228,42 +353,54 @@ source_code = [
     "STOP",
     "A DS 1",
     "B DS 1",
-    "C DS 1",
+    "C DS 1",           # Changed from C to C1 to avoid name clash if C is register
     "D DS 1",
-    "END"
+    "END"               # Process literal ='3'
 ]
 
 symbol_table, literal_table_final, _ = pass1(source_code)
 
 print("\n--- Final Symbol Table ---")
-print(f"{'Symbol':<10}{'Address':<10}")
-print("-" * 20)
-df_sym = pd.DataFrame.from_dict(symbol_table, orient='index')
-print(df_sym[['address']]) # Displaying only address for simplicity
+if symbol_table:
+    print(f"{'Symbol':<10}{'Address':<10}")
+    print("-" * 20)
+    # Using pandas for formatted output
+    df_sym = pd.DataFrame.from_dict(symbol_table, orient='index')
+    print(df_sym[['address']]) # Displaying only address for simplicity
+else:
+    print("(empty)")
+
 
 print("\n--- Final Literal Table ---")
-print(f"{'ID':<5}{'Literal':<10}{'Address':<10}")
-print("-" * 25)
-# Sort by ID for clarity
-sorted_lits = sorted(literal_table_final.items(), key=lambda item: item[1]['id'])
-for lit, data in sorted_lits:
-     print(f"{data['id']:<5}{lit:<10}{data['address'] if data['address'] is not None else 'N/A':<10}")
+if literal_table_final:
+    print(f"{'ID':<5}{'Literal':<10}{'Address':<10}")
+    print("-" * 25)
+    # Sort by ID for clarity
+    sorted_lits = sorted(literal_table_final.items(), key=lambda item: item[1]['id'])
+    for lit, data in sorted_lits:
+         print(f"{data['id']:<5}{lit:<10}{data['address'] if data['address'] is not None else 'N/A':<10}")
+else:
+     print("(empty)")
 
-</code></pre>
+                    </code></pre>
                  </div>
             </div>
 
              <!-- Pass 1: Base Table / LC -->
             <div>
-                <h3 class="text-xl">1b. Pass 1: Generate Base Table & Location Counter (LC)</h3>
+                <h3 id="target-assembler-1b" class="text-xl">1b. Pass 1: Generate Base Table & Location Counter (LC)</h3>
                 <p>Focuses on calculating the Location Counter (LC) during Pass 1. Base Table generation depends heavily on specific directives like `USING`, which is simplified here.</p>
                 <div class="run-command">
                     <strong>Language:</strong> Python<br>
+                     <strong>Libraries:</strong> Pandas (for display)<br>
+                    <strong>Install:</strong> <code>pip install pandas</code><br>
                     <strong>Execution:</strong> <code>python assembler_pass1_lc_base.py</code> (Save code as this file)
                 </div>
                 <div class="code-block-container">
                      <button class="copy-btn" data-target-id="code-assembler-1b">Copy</button>
                     <pre id="code-assembler-1b"><code class="language-python">
+# Paste Python code for Assembler 1b here...
+# (Code from previous answer)
 import pandas as pd
 
 def is_opcode(mnemonic): # Same as before
@@ -278,6 +415,7 @@ def calculate_lc_and_base(source_code):
     location_counter = 0
     base_table = {} # Stores register availability for base addressing {register: address}
     lc_history = [] # Track LC for each line
+    symbol_table_temp = {} # Need symbol table to resolve labels for USING, EQU etc. (Simplified)
 
     print("--- Pass 1 LC Calculation & Base Table Simulation ---")
     print(f"{'LC':<8}{'Line':<40}")
@@ -290,61 +428,87 @@ def calculate_lc_and_base(source_code):
 
         # Basic parsing
         idx = 0
-        if len(parts) > 0 and not is_opcode(parts[idx]) and not is_directive(parts[idx]):
-            idx += 1 # Skip label for LC calculation focus
+        if len(parts) > 0 and parts[idx].strip() and not is_opcode(parts[idx]) and not is_directive(parts[idx]):
+            label = parts[idx]
+            # Store label address (basic)
+            if label not in symbol_table_temp:
+                 symbol_table_temp[label] = current_lc
+            idx += 1
 
         if len(parts) > idx: opcode = parts[idx]; idx += 1
         if len(parts) > idx: operand = parts[idx]; idx += 1
 
         lc_history.append(current_lc) # Store LC *before* processing the line
-        print(f"{current_lc:<8}{line}")
+        print(f"{current_lc:<8}{line.strip()}")
 
         # Update LC based on opcode/directive
         if opcode == 'START':
-            if operand: location_counter = int(operand)
+            if operand:
+                 try: location_counter = int(operand)
+                 except ValueError: location_counter = 0
             continue
         elif opcode == 'END':
-            # Process any pending literals (simplified)
-            # In a real assembler, literal pool processing happens here too
             break # Stop processing
         elif opcode == 'LTORG':
-            # Process literal pool (simplified - assume 1 word per literal)
-            # location_counter += calculate_literal_pool_size() # Placeholder
-            print("   -> LTORG encountered (LC increment would depend on literal pool size)")
-            pass # Simplified: No direct LC change for LTORG itself here
+            # Real LC update depends on literal pool size - skip for this example
+            print("   -> LTORG encountered (LC increment skipped in this example)")
+            pass
         elif opcode == 'USING':
-             # Example: USING *, 15  (Use current address, register 15)
-             # Example: USING BASE, R2
-             # This directive doesn't change LC but updates the base table
              if operand:
                  parts_op = operand.split(',')
                  if len(parts_op) == 2:
                      base_val_str = parts_op[0].strip()
                      reg_str = parts_op[1].strip()
-                     # In a real assembler, base_val_str needs evaluation (*) or symbol lookup
-                     base_address = current_lc if base_val_str == '*' else -1 # Placeholder for symbol lookup
-                     base_table[reg_str] = base_address
-                     print(f"   -> Base Table Update: Register {reg_str} set to base address {base_address}")
+                     base_address = -1 # Default to unknown
+                     if base_val_str == '*':
+                         base_address = current_lc
+                     elif base_val_str in symbol_table_temp:
+                          base_address = symbol_table_temp[base_val_str]
+                     else:
+                          try: # Maybe it's a direct address?
+                              base_address = int(base_val_str)
+                          except ValueError:
+                               print(f"   -> Warning: Cannot resolve base '{base_val_str}' for USING")
+
+                     if base_address != -1:
+                         base_table[reg_str] = base_address
+                         print(f"   -> Base Table Update: Register {reg_str} set to base address {base_address}")
                  else:
                      print(f"   -> Warning: Invalid USING operand format: {operand}")
+             # USING does not advance LC
 
         elif opcode == 'DS':
-            if operand: location_counter += int(operand)
+            if operand:
+                try: location_counter += int(operand)
+                except ValueError: print(f"   -> Warning: Invalid DS value '{operand}'")
         elif opcode == 'DC':
              location_counter += 1 # Assume 1 word
+        elif opcode == 'EQU':
+             # EQU assigns value to label, doesn't advance LC
+             # Requires expression evaluation - skipped here
+             if label and operand:
+                  print(f"   -> EQU '{label}' encountered (value resolution skipped)")
+                  # Potentially update symbol table if needed for other lookups
+                  # symbol_table_temp[label] = evaluate_expression(operand, symbol_table_temp)
+             pass # No LC change
         elif is_opcode(opcode):
              location_counter += 1 # Assume 1 word per instruction
-        # ORIGIN, EQU would require more complex LC handling
 
     print("-" * 50)
 
-    print("\n--- Location Counter History ---")
+    print("\n--- Location Counter History (Final Values) ---")
+    max_len_line = max(len(s) for s in source_code) if source_code else 30
+    print(f"{'Line #':<8}{'Source Code'.ljust(max_len_line)}{'Calculated LC':<15}")
+    print("-" * (max_len_line + 25))
     for i, lc in enumerate(lc_history):
-        print(f"Line {i+1}: {source_code[i]:<30} LC = {lc}")
+         # Adjust index if END was not included in lc_history
+        line_to_print = source_code[i] if i < len(source_code) else " (END)"
+        print(f"{i+1:<8}{line_to_print.strip().ljust(max_len_line)}{lc:<15}")
+
 
     print("\n--- Final Base Table (Simulated) ---")
     if not base_table:
-        print("Base Table is empty.")
+        print("(empty)")
     else:
         print(f"{'Register':<10}{'Base Address':<15}")
         print("-" * 25)
@@ -358,13 +522,14 @@ source_code_lc = [
     "PG1 START 100",
     "    USING *, 15",   # Use current LC (100) as base for R15
     "    READ A",
-    "L1  MOVER AREG, B",
-    "    USING L1, 14",  # Use address of L1 as base for R14
+    "L1  MOVER AREG, B", # L1 should be 101
+    "    USING L1, 14",  # Use address of L1 (101) as base for R14
     "    ADD AREG, C",
     "    BC ANY, L1",
-    "A   DS 1",
-    "B   DS 1",
-    "C   EQU A+1",      # EQU doesn't increment LC
+    "A   DS 1",          # A is 104
+    "B   DS 1",          # B is 105
+    "C   EQU A+1",       # EQU doesn't increment LC, C's value is 105 (calc skipped)
+    "    DC F'5'",       # Advances LC by 1 (now 106)
     "    END"
 ]
 
@@ -376,7 +541,7 @@ lc_history, base_table = calculate_lc_and_base(source_code_lc)
 
              <!-- Display MOT/POT -->
             <div>
-                <h3 class="text-xl">1c. Display MOT & POT Contents</h3>
+                <h3 id="target-assembler-1c" class="text-xl">1c. Display MOT & POT Contents</h3>
                 <p>Shows predefined Machine Opcode Table (MOT) and Pseudo Opcode Table (POT) used by the assembler.</p>
                  <div class="run-command">
                     <strong>Language:</strong> Python<br>
@@ -387,6 +552,8 @@ lc_history, base_table = calculate_lc_and_base(source_code_lc)
                 <div class="code-block-container">
                     <button class="copy-btn" data-target-id="code-assembler-1c">Copy</button>
                     <pre id="code-assembler-1c"><code class="language-python">
+# Paste Python code for Assembler 1c here...
+# (Code from previous answer)
 import pandas as pd
 
 # Machine Opcode Table (MOT) - Mnemonic -> (Opcode Type, Machine Code, Length)
@@ -430,8 +597,7 @@ print(df_mot)
 print("\n--- Pseudo Opcode Table (POT) / Directives ---")
 df_pot = pd.DataFrame.from_dict(pot, orient='index')
 print(df_pot)
-
-</code></pre>
+                    </code></pre>
                  </div>
             </div>
         </div>
@@ -444,7 +610,7 @@ print(df_pot)
 
             <!-- Display MNT, MDT, ALA -->
             <div>
-                <h3 class="text-xl">2a. Display MNT, MDT, ALA</h3>
+                <h3 id="target-macro-2a" class="text-xl">2a. Display MNT, MDT, ALA</h3>
                 <p>Processes macro definitions to build and display the Macro Name Table (MNT), Macro Definition Table (MDT), and Argument List Array (ALA) structure (simulated).</p>
                  <div class="run-command">
                     <strong>Language:</strong> Python<br>
@@ -455,7 +621,10 @@ print(df_pot)
                  <div class="code-block-container">
                     <button class="copy-btn" data-target-id="code-macro-2a">Copy</button>
                     <pre id="code-macro-2a"><code class="language-python">
+# Paste Python code for Macro 2a here...
+# (Code from previous answer)
 import pandas as pd
+import re # Import regex for better argument substitution
 
 def build_macro_tables(source_code):
     mnt = {}  # Macro Name Table: {name: {'num_args': k, 'mdt_index': p}}
@@ -464,80 +633,95 @@ def build_macro_tables(source_code):
 
     in_macro_definition = False
     current_macro_name = None
-    arg_index = 0
+
+    line_iter = iter(enumerate(source_code)) # Use iterator
 
     print("--- Macro Processing (Building Tables) ---")
-    for line_num, line in enumerate(source_code):
-        line = line.strip()
-        parts = line.split(maxsplit=2) # Split carefully: [label/name] [MACRO/opcode] [args/operand]
-        directive_or_name = parts[0] if parts else ""
-        args_part = parts[1] if len(parts) > 1 else ""
 
-        print(f"Line {line_num+1}: {line}")
+    while True:
+        try:
+            line_num, line = next(line_iter)
+            line_strip = line.strip()
+            parts = line_strip.split(maxsplit=1) # Split only once
+            directive_or_name = parts[0] if parts else ""
 
-        if directive_or_name == 'MACRO':
-            if in_macro_definition:
-                print("Error: Nested MACRO definitions not supported.")
+            # print(f"Debug Line {line_num+1}: '{line_strip}' | InDef: {in_macro_definition} | Current: {current_macro_name}") # Debug print
+
+            if directive_or_name == 'MACRO' and not in_macro_definition:
+                in_macro_definition = True
+                print(f"Line {line_num+1}: Found MACRO directive.")
+                # Now expect the prototype on the *next* line
+                try:
+                    proto_line_num, proto_line = next(line_iter)
+                    proto_line_strip = proto_line.strip()
+                    proto_parts = proto_line_strip.split(maxsplit=1)
+                    current_macro_name = proto_parts[0]
+
+                    if not current_macro_name or current_macro_name in ['MACRO', 'MEND']:
+                        print(f"Error Line {proto_line_num+1}: Invalid macro name '{current_macro_name}'. Skipping definition.")
+                        # Skip until MEND
+                        while True:
+                            nl_num, nl = next(line_iter)
+                            if nl.strip() == 'MEND': break
+                        in_macro_definition = False; current_macro_name = None; continue
+
+                    if current_macro_name in mnt:
+                        print(f"Error Line {proto_line_num+1}: Macro '{current_macro_name}' redefined. Skipping.")
+                        while True: # Skip lines until MEND
+                            nl_num, nl = next(line_iter)
+                            if nl.strip() == 'MEND': break
+                        in_macro_definition = False; current_macro_name = None; continue
+
+                    print(f"Line {proto_line_num+1}: Defining Macro '{current_macro_name}'")
+                    mdt.append(proto_line_strip) # Store prototype
+                    mdt_start_index = len(mdt) - 1
+
+                    formal_args_str = proto_parts[1] if len(proto_parts) > 1 else ""
+                    formal_args = [arg.strip().lstrip('&') for arg in formal_args_str.split(',') if arg.strip()]
+
+                    mnt[current_macro_name] = {'num_args': len(formal_args), 'mdt_index': mdt_start_index}
+                    ala_structure[current_macro_name] = {formal: f"#{i+1}" for i, formal in enumerate(formal_args)}
+
+                    print(f"   -> Formal Args: {formal_args}")
+                    print(f"   -> ALA Structure: {ala_structure[current_macro_name]}")
+
+                except StopIteration:
+                    print(f"Error Line {line_num+1}: MACRO directive found, but end of file reached before prototype or MEND.")
+                    in_macro_definition = False; current_macro_name = None; break
+                continue # Continue to process body or MEND
+
+            elif directive_or_name == 'MEND' and in_macro_definition:
+                print(f"   -> Ended Macro Definition: {current_macro_name} at line {line_num+1}")
+                mdt.append(line_strip) # Add MEND line
+                in_macro_definition = False
+                current_macro_name = None
                 continue
-            if len(parts) < 1: # Only MACRO directive is needed on this line
-                 print("Info: Found MACRO directive.")
-                 in_macro_definition = True
-                 # Expect prototype on the next line
-                 continue
+
+            elif in_macro_definition:
+                # This is a line inside the macro body
+                processed_line = line # Preserve original indentation
+                if current_macro_name in ala_structure:
+                    temp_line = line_strip # Use stripped for replacement logic
+                    for formal_arg, positional_marker in ala_structure[current_macro_name].items():
+                        # Use regex for safer replacement (word boundaries)
+                        temp_line = re.sub(r'\b&' + re.escape(formal_arg) + r'\b', positional_marker, temp_line)
+                    # Reconstruct with original indent
+                    leading_whitespace = line[:len(line) - len(line.lstrip())]
+                    processed_line = leading_whitespace + temp_line
+                mdt.append(processed_line)
+
+            # Outside macro definition - could be regular assembly code or macro call
+            # (Not processed further in this example focused on table building)
             else:
-                 print("Warning: Expected only 'MACRO' directive on this line.")
-                 in_macro_definition = True # Still try to proceed
-                 continue
+                 # Optional: Print lines outside definitions if needed for context
+                 # print(f"Line {line_num+1}: {line_strip} (Outside Macro Def)")
+                 pass
 
-        elif directive_or_name == 'MEND':
-            if not in_macro_definition:
-                print("Error: MEND found outside of macro definition.")
-                continue
-            print(f"   -> Ended Macro Definition: {current_macro_name}")
-            mdt.append(line) # Add MEND line
-            in_macro_definition = False
-            current_macro_name = None
-            continue
+        except StopIteration:
+            break # End of input
 
-        elif in_macro_definition:
-             # Check if this is the prototype line (immediately after MACRO)
-             if current_macro_name is None:
-                 header_parts = line.split(maxsplit=1)
-                 current_macro_name = header_parts[0]
-                 if current_macro_name in mnt: # Check for redefinition
-                      print(f"Error: Macro '{current_macro_name}' redefined.")
-                      in_macro_definition = False # Abort this definition
-                      continue
-                 mdt.append(line) # Store prototype in MDT
-                 mdt_start_index = len(mdt) - 1 # Index where this macro starts in MDT
-
-                 formal_args = []
-                 if len(header_parts) > 1:
-                     # Split arguments, handling commas and spaces, remove '&'
-                     formal_args = [arg.strip().lstrip('&') for arg in header_parts[1].split(',') if arg.strip()]
-
-                 mnt[current_macro_name] = {'num_args': len(formal_args), 'mdt_index': mdt_start_index}
-
-                 # Build ALA structure for this macro
-                 ala_structure[current_macro_name] = {}
-                 for i, arg in enumerate(formal_args):
-                      ala_structure[current_macro_name][arg] = f"#{i+1}" # Map formal arg to positional index #1, #2...
-
-                 print(f"   -> Started Macro Definition: {current_macro_name} with args {formal_args}")
-             else:
-                 # This is a line inside the macro body
-                 processed_line = line
-                 # Replace formal parameters with positional markers in MDT line
-                 if current_macro_name in ala_structure:
-                      for formal_arg, positional_marker in ala_structure[current_macro_name].items():
-                          # Use word boundaries to avoid partial replacements (basic regex)
-                          # Need to import re for this
-                          import re
-                          processed_line = re.sub(r'\b&' + re.escape(formal_arg) + r'\b', positional_marker, processed_line)
-                 mdt.append(processed_line)
-
-        # Outside macro definition - could be regular assembly code or macro call
-        # (Not processed further in this example focused on table building)
+    if in_macro_definition:
+        print(f"Error: End of file reached while still in definition for macro '{current_macro_name}'")
 
     print("-" * 40)
     return mnt, mdt, ala_structure
@@ -545,10 +729,10 @@ def build_macro_tables(source_code):
 # --- Example Usage ---
 macro_source = [
     "MACRO",
-    "INCR &MEM, ®, &CONST", # Prototype
-    " MOVER ®, &MEM",
-    " ADD ®, &CONST",
-    " MOVEM ®, &MEM",
+    "INCR &MEM, &REG, &CONST", # Prototype
+    " MOVER &REG, &MEM",
+    " ADD &REG, &CONST",
+    " MOVEM &REG, &MEM",
     "MEND",
     "",
     "MACRO",
@@ -565,39 +749,32 @@ macro_source = [
 mnt, mdt, ala = build_macro_tables(macro_source)
 
 print("\n--- Macro Name Table (MNT) ---")
-# Use pandas for nice printing
 df_mnt = pd.DataFrame.from_dict(mnt, orient='index')
-if not df_mnt.empty:
-    print(df_mnt)
-else:
-    print("(empty)")
-
+if not df_mnt.empty: print(df_mnt)
+else: print("(empty)")
 
 print("\n--- Macro Definition Table (MDT) ---")
 print(f"{'Index':<6}{'Definition Line'}")
-print("-" * 40)
+print("-" * 50) # Wider separator
 for i, line in enumerate(mdt):
     print(f"{i:<6}{line}")
 
 print("\n--- Argument List Array (ALA) Structure (Simulated) ---")
-if not ala:
-    print("(empty)")
+if not ala: print("(empty)")
 else:
     for name, mapping in ala.items():
         print(f" Macro '{name}':")
-        if not mapping:
-            print("    (No arguments)")
+        if not mapping: print("    (No arguments)")
         else:
-            for formal, positional in mapping.items():
-                print(f"    &{formal} -> {positional}")
+            for formal, positional in mapping.items(): print(f"    &{formal} -> {positional}")
 
-</code></pre>
+                    </code></pre>
                  </div>
             </div>
 
             <!-- Expansion with Predefined Tables -->
             <div>
-                 <h3 class="text-xl">2b. Display Macro Expansion (Predefined Tables)</h3>
+                 <h3 id="target-macro-2b" class="text-xl">2b. Display Macro Expansion (Predefined Tables)</h3>
                 <p>Simulates macro expansion using predefined MNT and MDT. Focuses on substituting arguments during expansion.</p>
                  <div class="run-command">
                     <strong>Language:</strong> Python<br>
@@ -606,19 +783,23 @@ else:
                 <div class="code-block-container">
                      <button class="copy-btn" data-target-id="code-macro-2b">Copy</button>
                     <pre id="code-macro-2b"><code class="language-python">
+# Paste Python code for Macro 2b here...
+# (Code from previous answer)
+import re # Import regex for potential use in substitution
+
 # --- Predefined Tables (Example) ---
 # Usually built by a previous pass or definition phase
 predefined_mnt = {
     # Name: {#Params, MDT_Start_Index}
     'INCR': {'num_args': 3, 'mdt_index': 0},
-    'DECR': {'num_args': 1, 'mdt_index': 5} # Corrected index for DECR
+    'DECR': {'num_args': 1, 'mdt_index': 5} # Index points to prototype
 }
 
 predefined_mdt = [
     # Index 0 - INCR Prototype
-    "INCR &MEM, ®, &CONST",
-    # Index 1 - INCR Body
-    " MOVER #2, #1",   # Positional args: #1=MEM, #2=REG, #3=CONST
+    "INCR &MEM, &REG, &CONST",
+    # Index 1 - INCR Body (Using positional markers #1, #2, #3)
+    " MOVER #2, #1",
     # Index 2 - INCR Body
     " ADD #2, #3",
     # Index 3 - INCR Body
@@ -627,15 +808,15 @@ predefined_mdt = [
     "MEND",
     # Index 5 - DECR Prototype
     "DECR &ARG1",
-    # Index 6 - DECR Body
-    " SUB AREG, #1", # Positional arg: #1=ARG1
+    # Index 6 - DECR Body (Using positional marker #1)
+    " SUB AREG, #1",
     # Index 7 - MEND for DECR
     "MEND"
 ]
 
 def expand_macro(macro_call_line, mnt, mdt):
     """Expands a single macro call line."""
-    parts = macro_call_line.split(maxsplit=1)
+    parts = macro_call_line.strip().split(maxsplit=1) # Strip whitespace first
     macro_name = parts[0]
     actual_args_str = parts[1] if len(parts) > 1 else ""
 
@@ -661,18 +842,21 @@ def expand_macro(macro_call_line, mnt, mdt):
     # Start reading MDT from the line *after* the prototype
     mdt_current_index = mdt_start_index + 1
     while mdt_current_index < len(mdt):
-        mdt_line = mdt[mdt_current_index].strip()
-        if mdt_line == 'MEND':
+        mdt_line = mdt[mdt_current_index] # Keep original line structure
+        mdt_line_content = mdt_line.strip() # Use stripped for logic checks
+
+        if mdt_line_content == 'MEND':
             break # Stop expansion for this macro
 
         # Substitute positional parameters with actual arguments
-        expanded_line = mdt_line
+        # Preserve original indentation
+        leading_whitespace = mdt_line[:len(mdt_line) - len(mdt_line.lstrip())]
+        expanded_line_content = mdt_line_content # Work on stripped content
         for positional, actual in call_ala.items():
-             # Be careful with simple replace - might replace substrings unintentionally
-             # Using split/join or regex might be safer in complex cases
-             expanded_line = expanded_line.replace(positional, actual)
+             # Simple replace is often sufficient if markers are unique (#1, #2)
+             expanded_line_content = expanded_line_content.replace(positional, actual)
 
-        expanded_code.append("    " + expanded_line) # Indent expanded code
+        expanded_code.append(leading_whitespace + expanded_line_content) # Re-add indent
         mdt_current_index += 1
 
     return expanded_code
@@ -701,16 +885,17 @@ macros_found = predefined_mnt.keys()
 for line in source_code_to_expand:
     line_strip = line.strip()
     if not line_strip: # Skip empty lines
-        output_code.append(line)
+        output_code.append(line) # Keep original empty line formatting
         continue
 
     parts = line_strip.split(maxsplit=1)
     potential_macro_name = parts[0]
 
     if potential_macro_name in macros_found:
-        print(f"\nProcessing Macro Call: {line_strip}")
-        # Need to pass the full line including args to expand_macro
+        print(f"\nProcessing Macro Call: {line.strip()}") # Print original line
+        # Pass the original line (or stripped version) to expand_macro
         expansion = expand_macro(line_strip, predefined_mnt, predefined_mdt)
+        output_code.append(f"; Expanded from: {line.strip()}") # Add comment showing original call
         output_code.extend(expansion) # Add expanded lines
         print(f"   -> Expansion:")
         for expanded_line in expansion:
@@ -723,13 +908,13 @@ print("\n--- Final Output Code (with Expansion) ---")
 for line in output_code:
     print(line)
 
-</code></pre>
+                    </code></pre>
                 </div>
             </div>
 
             <!-- Identify and Expand -->
             <div>
-                <h3 class="text-xl">2c. Identify Macros and Perform Expansion</h3>
+                <h3 id="target-macro-2c" class="text-xl">2c. Identify Macros and Perform Expansion</h3>
                 <p>Combines definition processing and expansion in a single pass (conceptual). It builds tables as definitions are found and expands calls encountered later.</p>
                  <div class="run-command">
                     <strong>Language:</strong> Python<br>
@@ -740,6 +925,8 @@ for line in output_code:
                  <div class="code-block-container">
                     <button class="copy-btn" data-target-id="code-macro-2c">Copy</button>
                     <pre id="code-macro-2c"><code class="language-python">
+# Paste Python code for Macro 2c here...
+# (Code from previous answer)
 import pandas as pd
 import re # Import regex
 
@@ -762,9 +949,10 @@ def process_source(source_code):
         try:
             line_num, line = next(line_iter)
             line_strip = line.strip()
+            original_line = line # Keep original formatting
 
             if not line_strip: # Skip empty lines
-                if not in_macro_definition: output_code.append(line)
+                if not in_macro_definition: output_code.append(original_line)
                 continue
 
             parts = line_strip.split(maxsplit=1) # Split only once for name/rest
@@ -784,26 +972,20 @@ def process_source(source_code):
 
                     if not current_macro_name or current_macro_name == 'MACRO' or current_macro_name == 'MEND':
                          print(f"Error Line {proto_line_num+1}: Invalid macro name '{current_macro_name}'. Skipping definition.")
-                         # Skip until MEND potentially
-                         while True:
-                             nl_num, nl = next(line_iter)
+                         while True: # Skip until MEND
+                             nl_num, nl = next(line_iter);
                              if nl.strip() == 'MEND': break
-                         in_macro_definition = False
-                         current_macro_name = None
-                         continue
+                         in_macro_definition = False; current_macro_name = None; continue
 
                     if current_macro_name in mnt:
-                         print(f"Error Line {proto_line_num+1}: Macro '{current_macro_name}' redefined. Skipping definition.")
-                         # Skip until MEND potentially
-                         while True:
-                             nl_num, nl = next(line_iter)
+                         print(f"Error Line {proto_line_num+1}: Macro '{current_macro_name}' redefined. Skipping.")
+                         while True: # Skip until MEND
+                             nl_num, nl = next(line_iter);
                              if nl.strip() == 'MEND': break
-                         in_macro_definition = False
-                         current_macro_name = None
-                         continue
+                         in_macro_definition = False; current_macro_name = None; continue
 
                     print(f"Line {proto_line_num+1}: Defining Macro '{current_macro_name}'")
-                    mdt.append(proto_line_strip) # Store prototype itself
+                    mdt.append(proto_line) # Store prototype with original indent
                     mdt_start_index = len(mdt) - 1
 
                     formal_args_str = proto_parts[1] if len(proto_parts) > 1 else ""
@@ -811,38 +993,41 @@ def process_source(source_code):
 
                     mnt[current_macro_name] = {'num_args': len(formal_args), 'mdt_index': mdt_start_index}
                     ala_definition_structure[current_macro_name] = {formal: f"#{i+1}" for i, formal in enumerate(formal_args)}
+                    print(f"  -> MNT entry: {mnt[current_macro_name]}")
+                    print(f"  -> ALA structure: {ala_definition_structure[current_macro_name]}")
 
                 except StopIteration:
-                    print(f"Error Line {line_num+1}: MACRO defined but no prototype or MEND found.")
-                    in_macro_definition = False
+                    print(f"Error Line {line_num+1}: MACRO defined but end of file reached before prototype or MEND.")
+                    in_macro_definition = False; current_macro_name = None; break
                 continue # Continue to process body/MEND
 
             elif potential_macro_name == 'MEND' and in_macro_definition:
                 print(f"Line {line_num+1}: Ending definition for '{current_macro_name}'")
-                mdt.append(line_strip) # Store MEND
+                mdt.append(original_line) # Store MEND line
                 in_macro_definition = False
                 current_macro_name = None
                 continue
 
             elif in_macro_definition:
                 # Store lines inside definition, substituting formal args
-                processed_line = line # Keep original indentation
+                processed_line = original_line # Preserve original indentation
+                temp_line_strip = line_strip # Use stripped for replacement logic
                 if current_macro_name and current_macro_name in ala_definition_structure:
-                     temp_line = line_strip # Work with stripped for replacement logic
                      for formal_arg, positional_marker in ala_definition_structure[current_macro_name].items():
                          # Use regex for safer replacement (word boundaries)
-                         temp_line = re.sub(r'\b&' + re.escape(formal_arg) + r'\b', positional_marker, temp_line)
-                     # Reconstruct line with original indentation if possible
-                     leading_whitespace = line[:len(line) - len(line.lstrip())]
-                     processed_line = leading_whitespace + temp_line
+                         temp_line_strip = re.sub(r'\b&' + re.escape(formal_arg) + r'\b', positional_marker, temp_line_strip)
+                     # Reconstruct line with original indentation
+                     leading_whitespace = original_line[:len(original_line) - len(original_line.lstrip())]
+                     processed_line = leading_whitespace + temp_line_strip
 
-                mdt.append(processed_line)
+                mdt.append(processed_line) # Store processed line in MDT
                 continue # Don't add definition lines to output code
 
             # --- Handling Expansion ---
             elif potential_macro_name in mnt and not in_macro_definition:
                 # Found a macro call
                 print(f"Line {line_num+1}: Expanding Macro Call '{line_strip}'")
+                output_code.append(f"; Expanding: {line_strip}") # Add comment
                 macro_info = mnt[potential_macro_name]
                 mdt_start_index = macro_info['mdt_index']
                 num_expected_args = macro_info['num_args']
@@ -857,30 +1042,30 @@ def process_source(source_code):
                     continue
 
                 call_ala = {f"#{i+1}": actual_args[i] for i in range(len(actual_args))}
+                print(f"  -> Call ALA: {call_ala}")
 
                 # Expand from MDT
                 mdt_current_index = mdt_start_index + 1 # Start after prototype
                 while mdt_current_index < len(mdt):
-                    mdt_line = mdt[mdt_current_index] # Keep original line from MDT
+                    mdt_line = mdt[mdt_current_index] # Get line from MDT (already has positional markers)
                     mdt_line_strip = mdt_line.strip()
 
                     if mdt_line_strip == 'MEND':
                         break
 
-                    expanded_line = mdt_line # Start with original line from MDT
+                    expanded_line = mdt_line # Start with line from MDT
                     # Substitute positional markers with actual arguments from call_ala
                     for positional, actual in call_ala.items():
-                         # Use simple replace on the potentially indented line
                          expanded_line = expanded_line.replace(positional, actual)
 
-                    output_code.append(expanded_line) # Add expanded line to output
+                    output_code.append(expanded_line) # Add fully expanded line to output
                     mdt_current_index += 1
                 continue # Finished expanding this call
 
             else:
                  # Regular assembly instruction or comment
                  if not in_macro_definition: # Ensure not inside definition
-                    output_code.append(line) # Add non-macro line to output
+                    output_code.append(original_line) # Add non-macro line to output
 
         except StopIteration:
             break # End of source code input
@@ -892,10 +1077,10 @@ def process_source(source_code):
 # --- Example Usage ---
 macro_source_single_pass = [
     "MACRO",            # Line 1
-    "INCR &MEM, ®",  # Line 2 (Prototype)
-    " MOVER ®, &MEM", # Line 3
-    " ADD ®, ='1'",  # Line 4
-    " MOVEM ®, &MEM", # Line 5
+    "INCR &MEM, &REG",  # Line 2 (Prototype)
+    " MOVER &REG, &MEM", # Line 3
+    " ADD &REG, ='1'",  # Line 4
+    " MOVEM &REG, &MEM", # Line 5
     "MEND",             # Line 6
     "",                 # Line 7
     "START 100",        # Line 8
@@ -926,7 +1111,7 @@ else: print("(empty)")
 
 print("\n--- Macro Definition Table (MDT) ---")
 print(f"{'Index':<6}{'Definition Line'}")
-print("-" * 40)
+print("-" * 50)
 for i, line in enumerate(mdt):
     print(f"{i:<6}{line}")
 
@@ -934,7 +1119,7 @@ print("\n--- Final Output Code (After Expansion) ---")
 for line in output_code:
     print(line)
 
-</code></pre>
+                    </code></pre>
                  </div>
             </div>
 
@@ -949,7 +1134,7 @@ for line in output_code:
 
             <!-- First Set -->
             <div>
-                <h3 class="text-xl">3a. Calculate First Set</h3>
+                <h3 id="target-firstset" class="text-xl">3a. Calculate First Set</h3>
                 <p>Computes the First set for each non-terminal in a given context-free grammar. Handles epsilon productions and recursion.</p>
                  <div class="run-command">
                     <strong>Language:</strong> Python<br>
@@ -958,6 +1143,8 @@ for line in output_code:
                 <div class="code-block-container">
                     <button class="copy-btn" data-target-id="code-firstset">Copy</button>
                     <pre id="code-firstset"><code class="language-python">
+# Paste Python code for First Set here...
+# (Code from previous answer)
 from collections import defaultdict
 
 # Global dictionaries to store grammar, First sets, and calculation state
@@ -973,34 +1160,33 @@ EPSILON = '#'
 
 def add_production(non_terminal, production):
     """Adds a production rule to the grammar."""
-    grammar[non_terminal].append(production)
+    # Store production as a list of symbols for easier iteration
+    prod_list = list(production) if production != EPSILON else [EPSILON]
+    grammar[non_terminal].append(prod_list)
 
 def calculate_first(symbol):
     """Recursively calculates the First set for a given symbol (terminal or non-terminal)."""
     global first_sets, grammar, visited, calculating, EPSILON
 
+    # Base case: If symbol is a terminal, its First set is itself
+    if not symbol.isupper() and symbol != EPSILON: # Assuming non-terminals are uppercase
+        return {symbol}
+    # Base case: Epsilon
+    if symbol == EPSILON:
+         return {EPSILON}
+
     # If First set already computed and finalized, return it
     if symbol in first_sets and symbol not in calculating:
         return first_sets[symbol]
 
-    # Base case: If symbol is a terminal, its First set is itself
-    if not symbol.isupper(): # Assuming non-terminals are uppercase
-        return {symbol}
-
     # If currently computing this symbol (cycle detected in this call stack)
     if symbol in visited:
-        # This indicates left recursion for the current path.
-        # A robust solution requires grammar transformation.
-        # Here, we return an empty set for this path to avoid infinite loop,
-        # but the overall calculation might still proceed via other paths.
-        print(f"Warning: Left recursion detected involving {symbol}. Result might be incomplete without grammar transformation.")
-        return set()
+        print(f"Warning: Left recursion detected involving {symbol} during calculation path. Result might be incomplete.")
+        return set() # Avoid infinite loop for this specific path
 
-    # If calculation started but not finished (indicates dependency loop)
+    # If calculation started but not finished (indicates dependency loop in overall process)
     if symbol in calculating:
-         # We are waiting for this symbol's calculation to finish.
-         # Return the current (potentially incomplete) set for now.
-         # The final result will be settled when the outer call finishes.
+         # Return the current known set. Iterative approach will refine it.
         return first_sets[symbol]
 
     visited.add(symbol)
@@ -1008,20 +1194,18 @@ def calculate_first(symbol):
     current_first_set = set()
 
     # Iterate through all productions for this non-terminal
-    for production in grammar.get(symbol, []):
-        # Handle empty production (epsilon) directly associated with the symbol
-        if not production: # Check if production is empty string "" or list [] etc.
+    for production in grammar.get(symbol, []): # production is a list of symbols
+        # Handle epsilon production explicitly represented as [EPSILON]
+        if production == [EPSILON]:
             current_first_set.add(EPSILON)
             continue
-        # Handle explicit epsilon symbol '#' in the production
-        if production == EPSILON:
-             current_first_set.add(EPSILON)
-             continue
 
-        # Process symbols in the production
-        rhs_symbol_index = 0
-        while rhs_symbol_index < len(production):
-            rhs_symbol = production[rhs_symbol_index]
+        # Process symbols in the production sequence
+        idx = 0
+        while idx < len(production):
+            rhs_symbol = production[idx]
+            # Recursively calculate First of the RHS symbol
+            # Ensure visited state is handled correctly across calls
             first_of_rhs = calculate_first(rhs_symbol)
 
             # Add everything except epsilon from First(rhs_symbol)
@@ -1031,31 +1215,44 @@ def calculate_first(symbol):
             if EPSILON not in first_of_rhs:
                 break
 
-            # If epsilon is present, move to the next symbol in the production
-            rhs_symbol_index += 1
+            # If epsilon is present, continue to the next symbol
+            idx += 1
         else:
-            # If we reached the end of the production and all symbols had epsilon, add epsilon
+            # If loop finished without break (all symbols produced epsilon), add epsilon
             current_first_set.add(EPSILON)
 
     visited.remove(symbol) # Finished this specific recursive path
-    # Update the global set. If it changes, other dependent calculations might need re-evaluation (handled by iterative approach if needed)
+    # Update the global set for this symbol
     first_sets[symbol].update(current_first_set)
     calculating.remove(symbol) # Mark calculation as complete for this symbol
     return first_sets[symbol]
 
-# --- Iterative approach to handle mutual recursion ---
+# --- Iterative approach to ensure convergence for mutual recursion ---
 def compute_all_first_sets(non_terminals_list):
     """Computes First sets iteratively until no changes occur."""
-    changed = True
-    while changed:
+    print("--- Calculating First Sets (Iterative) ---")
+    iteration = 0
+    while True:
+        iteration += 1
+        print(f"Iteration {iteration}...")
         changed = False
         for nt in non_terminals_list:
             original_set = first_sets[nt].copy()
-            # Clear visited for each top-level call to allow exploring different paths
+            # Reset 'visited' for each top-level non-terminal calculation
+            # 'calculating' prevents infinite loops within the iterative process
             visited.clear()
-            calculate_first(nt)
+            calculate_first(nt) # This updates the global first_sets[nt]
             if first_sets[nt] != original_set:
                 changed = True
+                # print(f"  Updated First({nt}): {first_sets[nt]}") # Optional: trace changes
+
+        if not changed:
+            print(f"Converged after {iteration} iterations.")
+            break
+        if iteration > len(non_terminals_list) * 2: # Safety break
+            print("Warning: Calculation might not be converging (potential issue?).")
+            break
+
 
 # --- Example Grammar ---
 # E -> T E'
@@ -1074,13 +1271,22 @@ grammar_input = {
 # Populate the grammar dictionary
 non_terminals_list = list(grammar_input.keys())
 for nt, productions in grammar_input.items():
-    for prod in productions:
-        # Represent production as list of symbols for easy iteration
-        add_production(nt, list(prod) if prod != EPSILON else [EPSILON])
+    for prod_str in productions:
+        # Parse production string into symbols
+        prod_list = []
+        if prod_str == '+TE\'': prod_list = ['+', 'T', 'E\'']
+        elif prod_str == '*FT\'': prod_list = ['*', 'F', 'T\'']
+        elif prod_str == '(E)': prod_list = ['(', 'E', ')']
+        elif prod_str == 'TE\'': prod_list = ['T', 'E\'']
+        elif prod_str == 'FT\'': prod_list = ['F', 'T\'']
+        elif prod_str == 'id': prod_list = ['id']
+        elif prod_str == EPSILON: prod_list = [EPSILON]
+        else: print(f"Warning: Unhandled production format '{prod_str}'"); continue
+
+        add_production(nt, prod_list)
 
 
 # Calculate First sets for all non-terminals iteratively
-print("--- Calculating First Sets ---")
 compute_all_first_sets(non_terminals_list)
 
 # Print the results
@@ -1088,13 +1294,13 @@ print("\n--- First Sets ---")
 for non_terminal in sorted(non_terminals_list):
     print(f"First({non_terminal}) = {{{', '.join(sorted(list(first_sets[non_terminal])))}}}")
 
-</code></pre>
+                    </code></pre>
                 </div>
             </div>
 
             <!-- Follow Set -->
             <div>
-                <h3 class="text-xl">3b. Calculate Follow Set</h3>
+                <h3 id="target-followset" class="text-xl">3b. Calculate Follow Set</h3>
                 <p>Computes the Follow set for each non-terminal in a given context-free grammar, using pre-calculated First sets.</p>
                  <div class="run-command">
                     <strong>Language:</strong> Python<br>
@@ -1104,6 +1310,8 @@ for non_terminal in sorted(non_terminals_list):
                  <div class="code-block-container">
                      <button class="copy-btn" data-target-id="code-followset">Copy</button>
                     <pre id="code-followset"><code class="language-python">
+# Paste Python code for Follow Set here...
+# (Code from previous answer)
 from collections import defaultdict
 
 # --- Assume First Set Calculation Logic is Available (or include it here) ---
@@ -1134,18 +1342,24 @@ def calculate_first_for_string(symbols_list):
     idx = 0
     while idx < len(symbols_list):
         symbol = symbols_list[idx]
+
+        # Handle epsilon explicitly if it's the symbol itself in the list
+        if symbol == EPSILON:
+            if idx == 0: # If it's the only thing or the first thing
+                 result_first.add(EPSILON)
+            idx += 1
+            continue # Move to next symbol
+
         # Get First(symbol). Terminals have First(symbol) = {symbol}
         first_of_symbol = set()
         if symbol in first_sets:
              first_of_symbol = first_sets[symbol]
-        elif not symbol.isupper() and symbol != EPSILON: # It's a terminal
+        elif not symbol.isupper(): # It's a terminal
              first_of_symbol = {symbol}
-        elif symbol == EPSILON:
-             first_of_symbol = {EPSILON} # Should ideally not be in production list directly
         else:
-            print(f"Error: First set for symbol '{symbol}' not found!")
-            # Handle error or assume empty set? For safety, let's stop.
-            return set() # Cannot proceed without First set
+            # This case means First(symbol) wasn't pre-calculated, which is an error state
+            print(f"Error: First set for non-terminal '{symbol}' not found during First(string) calculation!")
+            return set() # Cannot proceed
 
         result_first.update(first_of_symbol - {EPSILON})
 
@@ -1153,7 +1367,7 @@ def calculate_first_for_string(symbols_list):
             break # Epsilon not present, stop
         idx += 1
     else:
-        # If loop finished (all symbols had epsilon in their First set), add epsilon
+        # If loop finished without break (all symbols produced epsilon), add epsilon
         result_first.add(EPSILON)
     return result_first
 
@@ -1170,16 +1384,19 @@ def calculate_follow_sets():
         follow_sets[nt] = set()
 
     # Rule 1: Place EOF in Follow(S), where S is the start symbol
-    follow_sets[start_symbol].add(EOF)
+    if start_symbol:
+        follow_sets[start_symbol].add(EOF)
 
     # Rules 2 & 3: Iterate until no changes occur in any Follow set
-    changed = True
-    while changed:
+    iteration = 0
+    while True:
+        iteration += 1
         changed = False
+        # print(f"Follow Set Iteration {iteration}") # Debug print
         # Iterate through each production A -> alpha
-        for non_terminal_A in grammar:
+        for non_terminal_A in list(grammar.keys()): # Use list to avoid issues if grammar changes
             for production in grammar[non_terminal_A]: # production is a list of symbols
-                # Iterate through symbols B in alpha: A -> prefix B suffix
+                 # Iterate through symbols B in alpha: A -> prefix B suffix
                 for i in range(len(production)):
                     symbol_B = production[i]
 
@@ -1187,25 +1404,33 @@ def calculate_follow_sets():
                     if symbol_B in non_terminals_global:
                         # Find suffix (beta in the rule A -> alpha B beta)
                         suffix_beta = production[i+1:]
+                        original_follow_set_B = follow_sets[symbol_B].copy()
 
                         # Rule 2: A -> alpha B beta, Follow(B) includes First(beta) - {epsilon}
                         if suffix_beta: # If beta is not empty
                             first_of_beta = calculate_first_for_string(suffix_beta)
-                            original_size = len(follow_sets[symbol_B])
                             added_terminals = first_of_beta - {EPSILON}
                             if added_terminals:
                                 follow_sets[symbol_B].update(added_terminals)
-                                if len(follow_sets[symbol_B]) > original_size:
-                                    changed = True
 
                         # Rule 3: A -> alpha B, or A -> alpha B beta where First(beta) contains epsilon
                         if not suffix_beta or EPSILON in calculate_first_for_string(suffix_beta):
-                            original_size = len(follow_sets[symbol_B])
                             # Follow(B) includes Follow(A)
-                            if non_terminal_A in follow_sets: # Ensure Follow(A) exists
+                            if non_terminal_A in follow_sets: # Ensure Follow(A) has been computed/updated
                                 follow_sets[symbol_B].update(follow_sets[non_terminal_A])
-                                if len(follow_sets[symbol_B]) > original_size:
-                                    changed = True
+
+                        # Check if the set actually changed in this iteration
+                        if follow_sets[symbol_B] != original_follow_set_B:
+                            changed = True
+                            # print(f"  Updated Follow({symbol_B}): {follow_sets[symbol_B]}") # Debug
+
+        if not changed:
+            print(f"Follow sets converged after {iteration} iterations.")
+            break
+        if iteration > len(non_terminals_global) * 5: # Safety break
+             print("Warning: Follow set calculation potentially not converging.")
+             break
+
 
 # --- Example Grammar & Pre-calculated First Sets ---
 # MUST match the grammar used for First sets
@@ -1225,37 +1450,36 @@ first_sets_input = {
     '+': {'+'}, '*': {'*'}, '(': {'('}, ')': {')'}, 'id': {'id'}
 }
 
-# Populate grammar and first sets
+# --- Setup ---
 grammar = defaultdict(list)
 first_sets = defaultdict(set, first_sets_input)
 non_terminals_global = set()
-start_symbol = None
+start_symbol = None # Will be set by first call to add_production
+
 for nt, productions in grammar_input_follow.items():
     for prod_str in productions:
-        prod_list = list(prod_str) if prod_str != EPSILON else [EPSILON]
-        # Special case for E': Need to handle ['+','T','E\''] and [EPSILON]
-        if prod_str == '+TE\'':
-            add_production(nt, ['+', 'T', 'E\''])
-        elif prod_str == '*FT\'':
-             add_production(nt, ['*', 'F', 'T\''])
-        elif prod_str == '(E)':
-             add_production(nt, ['(', 'E', ')'])
-        elif prod_str == EPSILON:
-             add_production(nt, [EPSILON]) # Represent epsilon production
-        else: # Handles 'TE\'', 'FT\'', 'id'
-             add_production(nt, list(prod_str))
+         # Parse production string into symbols list for consistency
+        prod_list = []
+        if prod_str == '+TE\'': prod_list = ['+', 'T', 'E\'']
+        elif prod_str == '*FT\'': prod_list = ['*', 'F', 'T\'']
+        elif prod_str == '(E)': prod_list = ['(', 'E', ')']
+        elif prod_str == 'TE\'': prod_list = ['T', 'E\'']
+        elif prod_str == 'FT\'': prod_list = ['F', 'T\'']
+        elif prod_str == 'id': prod_list = ['id']
+        elif prod_str == EPSILON: prod_list = [EPSILON] # Represent epsilon production
+        else: print(f"Warning: Unhandled production format '{prod_str}'"); continue
+        add_production(nt, prod_list)
 
 
-# Calculate Follow sets
+# --- Calculate and Print ---
 print("--- Calculating Follow Sets ---")
 calculate_follow_sets()
 
-# Print the results
 print("\n--- Follow Sets ---")
 for nt in sorted(list(non_terminals_global)): # Sort for consistent output
     print(f"Follow({nt}) = {{{', '.join(sorted(list(follow_sets[nt])))}}}")
 
-</code></pre>
+                    </code></pre>
                  </div>
             </div>
         </div>
@@ -1268,7 +1492,7 @@ for nt in sorted(list(non_terminals_global)): # Sort for consistent output
 
             <!-- Keywords, Identifiers, Symbols -->
             <div>
-                <h3 class="text-xl">4a. Identify Keywords, Identifiers, Symbols</h3>
+                <h3 id="target-lexer-4a" class="text-xl">4a. Identify Keywords, Identifiers, Symbols</h3>
                 <p>A simple Python lexer that identifies basic tokens like keywords, identifiers (variables), and symbols/operators.</p>
                  <div class="run-command">
                     <strong>Language:</strong> Python<br>
@@ -1277,17 +1501,20 @@ for nt in sorted(list(non_terminals_global)): # Sort for consistent output
                  <div class="code-block-container">
                      <button class="copy-btn" data-target-id="code-lexer-4a">Copy</button>
                     <pre id="code-lexer-4a"><code class="language-python">
+# Paste Python code for Lexer 4a here...
+# (Code from previous answer)
 import re
 
 # Define token types
 T_KEYWORD = 'KEYWORD'
 T_IDENTIFIER = 'IDENTIFIER'
+T_NUMBER = 'NUMBER' # Added for completeness
 T_SYMBOL = 'SYMBOL'
 T_UNKNOWN = 'UNKNOWN'
 T_EOF = 'EOF' # End of File/Input
 
 # Regular expressions for token patterns
-# Order matters! Keywords should be checked before identifiers.
+# Order matters! Keywords are handled *after* IDENTIFIER match.
 KEYWORDS = {'if', 'else', 'while', 'for', 'int', 'float', 'char', 'return', 'void', 'main'}
 SYMBOLS = r'[(){};,=+\-*/<>&|]' # Group symbols
 
@@ -1296,12 +1523,13 @@ token_specification = [
     ('NUMBER',    r'\d+(\.\d*)?'),           # Integer or float
     ('IDENTIFIER',r'[A-Za-z_][A-Za-z0-9_]*'),   # Identifiers
     ('SYMBOL',    SYMBOLS),                  # Use defined symbols regex
-    ('SKIP',      r'[ \t\n]+'),                # Skip whitespace and newlines
+    ('NEWLINE',   r'\n'),                    # Track newlines explicitly
+    ('SKIP',      r'[ \t]+'),                # Skip spaces and tabs only
     ('MISMATCH',  r'.'),                       # Any other character is a mismatch
 ]
 
 # Compile regex patterns
-token_regex = '|'.join(f'(?P<{pair[0]}>{pair[1]})' for pair in token_specification)
+token_regex = '|'.join(f'(?P&lt;{pair[0]}&gt;{pair[1]})' for pair in token_specification)
 compiled_regex = re.compile(token_regex)
 
 def tokenize(code):
@@ -1320,8 +1548,10 @@ def tokenize(code):
         pos = match.end()       # Move position to the end of the match
 
         if kind == 'SKIP':
-            line_num += value.count('\n') # Update line number
-            continue
+            continue # Ignore spaces/tabs
+        elif kind == 'NEWLINE':
+            line_num += 1
+            continue # Ignore newline characters for token list
         elif kind == 'MISMATCH':
             yield (T_UNKNOWN, value, line_num) # Report unknown characters
         elif kind == 'IDENTIFIER':
@@ -1332,7 +1562,6 @@ def tokenize(code):
                 yield (T_IDENTIFIER, value, line_num)
         else: # NUMBER, SYMBOL
              yield (kind, value, line_num) # Use kind directly
-             line_num += value.count('\n') # Count newlines within multiline tokens (if any)
 
 
     yield (T_EOF, '', line_num) # Signal end of input
@@ -1357,14 +1586,13 @@ print("-" * 35)
 for token in tokenize(source_code_lex1):
     token_type, token_value, token_line = token
     print(f"{token_type:<15}{token_value:<15}{token_line:<5}")
-
-</code></pre>
+                    </code></pre>
                  </div>
             </div>
 
             <!-- Numbers, Identifiers, Preprocessor -->
              <div>
-                <h3 class="text-xl">4b. Identify Numbers, Identifiers, Preprocessor Directives</h3>
+                <h3 id="target-lexer-4b" class="text-xl">4b. Identify Numbers, Identifiers, Preprocessor Directives</h3>
                 <p>Extends the lexer to recognize integer and floating-point numbers and simple preprocessor directives (like `#include`).</p>
                  <div class="run-command">
                     <strong>Language:</strong> Python<br>
@@ -1373,6 +1601,8 @@ for token in tokenize(source_code_lex1):
                 <div class="code-block-container">
                     <button class="copy-btn" data-target-id="code-lexer-4b">Copy</button>
                     <pre id="code-lexer-4b"><code class="language-python">
+# Paste Python code for Lexer 4b here...
+# (Code from previous answer)
 import re
 
 # Define token types
@@ -1390,10 +1620,10 @@ KEYWORDS_V2 = {'if', 'else', 'while', 'for', 'int', 'float', 'char', 'return', '
 SYMBOLS_V2 = r'[(){};,=+\-*/<>&|]' # Can expand this (e.g., +=, -=, ==, !=)
 
 token_specification_v2 = [
-    ('PREPROCESSOR', r'^\#.*'),                 # Lines starting with # (catches whole line)
-    ('NUMBER',       r'\d+(\.\d*)?|\.\d+'),     # Integer or float
-    ('STRING',       r'\"([^\\\"]|\\.)*\"'),    # Basic string literal
-    ('IDENTIFIER',   r'[A-Za-z_][A-Za-z0-9_]*'), # Identifiers
+    ('PREPROCESSOR', r'^\#[ \t]*\w+.*'),       # Lines starting with # (basic, catches rest of line)
+    ('NUMBER',       r'\d+(\.\d*)?|\.\d+'),    # Integer or float
+    ('STRING',       r'\"([^\\\"]|\\.)*\"'),    # Basic string literal handling escapes
+    ('IDENTIFIER',   r'[A-Za-z_][A-Za-z0-9_]*'),# Identifiers
     ('SYMBOL',       SYMBOLS_V2),               # Use defined symbols regex
     ('NEWLINE',      r'\n'),                    # Track newlines explicitly
     ('SKIP',         r'[ \t]+'),                # Skip spaces and tabs only
@@ -1402,7 +1632,7 @@ token_specification_v2 = [
 
 # Compile regex patterns
 # Need MULTILINE flag for ^ preprocessor anchor
-token_regex_v2 = '|'.join(f'(?P<{pair[0]}>{pair[1]})' for pair in token_specification_v2)
+token_regex_v2 = '|'.join(f'(?P&lt;{pair[0]}&gt;{pair[1]})' for pair in token_specification_v2)
 compiled_regex_v2 = re.compile(token_regex_v2, re.MULTILINE)
 
 def tokenize_v2(code):
@@ -1432,10 +1662,12 @@ def tokenize_v2(code):
             else:
                 yield (T_IDENTIFIER, value, line_num)
         else: # PREPROCESSOR, NUMBER, STRING, SYMBOL
-             yield (kind, value, line_num)
-             # Preprocessor directives consume the newline, update line counter
+             yield (kind, value.strip(), line_num) # Strip value for preprocessor display
+             # Preprocessor directives often consume the newline, update line counter correctly
              if kind == 'PREPROCESSOR':
-                 line_num += value.count('\n')
+                 # Increment line count based on newlines *within the matched value*
+                 # (though the regex currently stops at the first newline implicitly)
+                 line_num += value.count('\n') # If regex were different, this would be needed
 
 
     yield (T_EOF, '', line_num)
@@ -1465,17 +1697,16 @@ print("-" * 50)
 for token in tokenize_v2(source_code_lex2):
     token_type, token_value, token_line = token
     # Limit display length of long tokens like preprocessor lines
-    display_value = token_value.strip() # Strip whitespace for display
-    display_value = (display_value[:22] + '...') if len(display_value) > 25 else display_value
+    display_value = (token_value[:22] + '...') if len(token_value) > 25 else token_value
     print(f"{token_type:<15}{display_value:<25}{token_line:<5}")
 
-</code></pre>
+                    </code></pre>
                 </div>
             </div>
 
              <!-- Identifiers, Symbols, Remove Comments -->
             <div>
-                <h3 class="text-xl">4c. Identify Identifiers, Symbols & Remove Comments</h3>
+                <h3 id="target-lexer-4c" class="text-xl">4c. Identify Identifiers, Symbols & Remove Comments</h3>
                 <p>Focuses on identifying identifiers and symbols while explicitly removing single-line (`//`) and multi-line (`/* ... */`) comments.</p>
                  <div class="run-command">
                     <strong>Language:</strong> Python<br>
@@ -1484,21 +1715,30 @@ for token in tokenize_v2(source_code_lex2):
                  <div class="code-block-container">
                     <button class="copy-btn" data-target-id="code-lexer-4c">Copy</button>
                     <pre id="code-lexer-4c"><code class="language-python">
+# Paste Python code for Lexer 4c here...
+# (Code from previous answer)
 import re
 
 # Define token types
 T_IDENTIFIER = 'IDENTIFIER'
 T_SYMBOL = 'SYMBOL'
+# Add other types if needed (like numbers, keywords)
+T_NUMBER = 'NUMBER'
+T_KEYWORD = 'KEYWORD'
 T_UNKNOWN = 'UNKNOWN'
 T_EOF = 'EOF'
 
 # Regex patterns
+KEYWORDS_V3 = {'if', 'else', 'while', 'for', 'int', 'float', 'char', 'return', 'void', 'main'} # Added keywords
+SYMBOLS_V3 = r'[(){};,=+\-*/<>&|]'
+
 # Improved comment handling (especially nested /* */ which this simple regex won't handle)
 # This regex assumes non-nested multi-line comments
 token_specification_v3 = [
-    ('COMMENT',       r'/\*.*?\*/|//.*'),        # Combine multi (non-greedy) and single
+    ('COMMENT',       r'/\*.*?\*/|//[^\n]*'),    # Combine multi (non-greedy) and single line comment
+    ('NUMBER',        r'\d+(\.\d*)?|\.\d+'),    # Added numbers
     ('IDENTIFIER',    r'[A-Za-z_][A-Za-z0-9_]*'),# Identifiers
-    ('SYMBOL',        r'[(){};,=+\-*/<>&|]'),   # Single-character symbols
+    ('SYMBOL',        SYMBOLS_V3),              # Use defined symbols regex
     ('NEWLINE',       r'\n'),                   # Keep track of lines
     ('SKIP',          r'[ \t]+'),               # Skip spaces and tabs
     ('MISMATCH',      r'.'),                    # Any other character
@@ -1506,19 +1746,18 @@ token_specification_v3 = [
 
 # Compile regex
 # Need DOTALL flag for multi-line comment potentially spanning lines
-token_regex_v3 = '|'.join(f'(?P<{pair[0]}>{pair[1]})' for pair in token_specification_v3)
+token_regex_v3 = '|'.join(f'(?P&lt;{pair[0]}&gt;{pair[1]})' for pair in token_specification_v3)
 compiled_regex_v3 = re.compile(token_regex_v3, re.DOTALL)
 
 def tokenize_and_filter(code):
-    """Generates tokens (ID, SYMBOL) and filters comments/whitespace."""
+    """Generates tokens (ID, SYMBOL, NUMBER, KEYWORD) and filters comments/whitespace."""
     line_num = 1
     tokens = []
     pos = 0
     while pos < len(code):
         match = compiled_regex_v3.match(code, pos)
         if not match:
-            # This case indicates an issue with the regex or input
-            print(f"Error: Lexer stuck at pos {pos} on line {line_num}")
+            print(f"Error: Lexer stuck at pos {pos} on line {line_num}, char '{code[pos]}'")
             pos += 1 # Try to advance
             continue
 
@@ -1530,10 +1769,16 @@ def tokenize_and_filter(code):
             line_num += 1
             continue # Don't yield newline token
         elif kind == 'SKIP' or kind == 'COMMENT':
-            line_num += value.count('\n') # Count newlines in multi-line comments/skipped
+            # Important: Count newlines *within* multi-line comments
+            line_num += value.count('\n')
             continue # Skip comments and whitespace
         elif kind == 'IDENTIFIER':
-            tokens.append((T_IDENTIFIER, value, line_num))
+            if value in KEYWORDS_V3:
+                 tokens.append((T_KEYWORD, value, line_num))
+            else:
+                 tokens.append((T_IDENTIFIER, value, line_num))
+        elif kind == 'NUMBER':
+            tokens.append((T_NUMBER, value, line_num))
         elif kind == 'SYMBOL':
             tokens.append((T_SYMBOL, value, line_num))
         elif kind == 'MISMATCH':
@@ -1545,16 +1790,20 @@ def tokenize_and_filter(code):
 # --- Example Usage ---
 source_code_lex3 = """
 /* Multi-line
-   comment example */
+   comment example
+   ends here */
 int main() {
     int value = 5; // Single line comment
-    char symbol = '+';
-    value = value * (symbol - 1); /* Another comment */
+    char symbol = '+'; /* Another comment */
+    // check value
+    if (value > 0) {
+       value = value * (symbol - 1);
+    }
     return 0;
 }
 """
 
-print("--- Tokenizing Code (ID, Symbol, Removing Comments) ---")
+print("--- Tokenizing Code (ID, Symbol etc., Removing Comments) ---")
 print(f"{'Type':<15}{'Value':<15}{'Line':<5}")
 print("-" * 35)
 
@@ -1567,21 +1816,31 @@ for token in filtered_tokens:
 print("\n--- Code with Comments Removed (Reconstructed) ---")
 reconstructed_code = ""
 last_line = 1
-for token_type, token_value, token_line in filtered_tokens:
+current_indent = ""
+for i, (token_type, token_value, token_line) in enumerate(filtered_tokens):
     if token_type == T_EOF: break
+
     # Add newlines based on line number difference
     if token_line > last_line:
         reconstructed_code += "\n" * (token_line - last_line)
-        reconstructed_code += " " * 4 # Basic indentation
-    elif reconstructed_code and not reconstructed_code.endswith('\n'):
-         reconstructed_code += " " # Space between tokens on same line
+        # Basic indentation logic (imperfect): add spaces if line isn't ending with { or starting with }
+        prev_token_ends_block = (i > 0 and filtered_tokens[i-1][1] == '}')
+        current_token_starts_block = (token_value == '{')
+        current_token_ends_block = (token_value == '}')
+        if not current_token_ends_block: # Crude check for indentation start
+            reconstructed_code += "    " # Basic indent
+        last_line = token_line
+
+    # Add space between tokens on same line, except before/after certain symbols
+    if reconstructed_code and not reconstructed_code.endswith(('\n', ' ', '(')):
+        if token_value not in [';', ')', ',']: # Don't add space before these
+             reconstructed_code += " "
 
     reconstructed_code += token_value
-    last_line = token_line
 
 print(reconstructed_code.strip())
 
-</code></pre>
+                    </code></pre>
                  </div>
             </div>
         </div>
@@ -1601,16 +1860,18 @@ print(reconstructed_code.strip())
                     <li>Generate C code: <code>flex mylexer.l</code> (This creates <code>lex.yy.c</code>).</li>
                     <li>Compile the C code: <code>gcc lex.yy.c -o mylexer -lfl</code> (<code>-lfl</code> might be needed).</li>
                     <li>Prepare an input file (e.g., <code>input.txt</code>) with code to analyze.</li>
-                    <li>Run the lexer: <code>./mylexer < input.txt</code></li>
+                    <li>Run the lexer: <code>./mylexer &lt; input.txt</code></li>
                 </ol>
             </div>
              <div class="code-block-container">
                 <button class="copy-btn" data-target-id="code-lex-tool">Copy</button>
                 <pre id="code-lex-tool"><code class="language-c">
+# Paste C/Lex code for Lexer 5 here...
+# (Code from previous answer)
 /* mylexer.l - Example Lex file */
 %{
 // C declarations section
-#include <stdio.h>
+#include &lt;stdio.h&gt;
 
 // Define token types (optional, often done via yacc/bison header)
 // These are just examples for the printf output
@@ -1636,10 +1897,14 @@ whitespace  [ \t]+
 /* C Keywords (add more as needed) */
 keyword     if|else|while|for|int|float|char|return|void|main|include|define|struct|typedef
 
-/* Symbols (add more as needed, handle multi-char like ==, !=, += etc.) */
-symbol      "{"|"}"|"("|")"|";"|","|"="|"++"|"--"|"+"|"-"|"*"|"/"|"<"|">"|"&"|"|"|"!"|"=="|"!="|"<="|">="|"&&"|"||"
+/* Symbols (handle multi-char first, add more) */
+symbol      "{"|"}"|"("|")"|";"|","|"="|"[|"]"|\
+            "++"|"--"|"+"|"-"|"*"|"/"|"%"|\
+            "<"|">"|"&"|"|"|"!"|"^"|"~"|\
+            "=="|"!="|"<="|">="|"+="|"-="|"*="|"/="|\
+            "&&"|"||"
 
-/* String literal (basic) */
+/* String literal (basic handling of escaped quotes) */
 string      \"([^"\\\n]|\\.)*\"
 
 /* Comments */
@@ -1700,14 +1965,14 @@ int main(int argc, char *argv[]) {
     printf("--- Analysis Complete ---\n");
 
     // Close file if opened
-    if (yyin != stdin && yyin != NULL) { // Check if yyin was changed and is not NULL
+    // Check if yyin was changed from stdin *and* if it's not NULL before closing
+    if (yyin != stdin &amp;&amp; yyin != NULL) {
         fclose(yyin);
     }
 
     return 0;
 }
-
-</code></pre>
+                </code></pre>
              </div>
         </div>
 
@@ -1719,7 +1984,7 @@ int main(int argc, char *argv[]) {
 
             <!-- Algebraic Simp / Common Subexpression -->
             <div>
-                <h3 class="text-xl">6a. Algebraic Simplification & Common Subexpression Elimination</h3>
+                <h3 id="target-optimize-6a" class="text-xl">6a. Algebraic Simplification & Common Subexpression Elimination</h3>
                 <p>Basic implementation using string replacement for simple algebraic rules (like `x+0`) and identifying repeated expressions.</p>
                  <div class="run-command">
                     <strong>Language:</strong> Python<br>
@@ -1728,6 +1993,8 @@ int main(int argc, char *argv[]) {
                  <div class="code-block-container">
                      <button class="copy-btn" data-target-id="code-optimize-6a">Copy</button>
                     <pre id="code-optimize-6a"><code class="language-python">
+# Paste Python code for Optimization 6a here...
+# (Code from previous answer)
 import re
 
 def algebraic_simplification(code_lines):
@@ -1735,113 +2002,141 @@ def algebraic_simplification(code_lines):
     optimized_lines = []
     print("--- Applying Algebraic Simplification ---")
     for line in code_lines:
-        original_line = line
-        # Rule: x = y + 0  or  x = 0 + y  -> x = y
-        line = re.sub(r'=\s*([\w.\(\)]+)\s*\+\s*0\b', r'= \1', line) # y + 0 (Handles temp vars like (0))
-        line = re.sub(r'=\s*0\s*\+\s*([\w.\(\)]+)\b', r'= \1', line) # 0 + y
+        original_line = line.strip() # Work with stripped line for regex
+        modified_line = original_line
 
-        # Rule: x = y * 1  or  x = 1 * y -> x = y
-        line = re.sub(r'=\s*([\w.\(\)]+)\s*\*\s*1\b', r'= \1', line) # y * 1
-        line = re.sub(r'=\s*1\s*\*\s*([\w.\(\)]+)\b', r'= \1', line) # 1 * y
+        # Rule: x = y + 0 or x = 0 + y -> x = y
+        modified_line = re.sub(r'=\s*([\w.\(\)\[\]]+)\s*\+\s*0\b', r'= \1', modified_line) # y + 0
+        modified_line = re.sub(r'=\s*0\s*\+\s*([\w.\(\)\[\]]+)\b', r'= \1', modified_line) # 0 + y
+
+        # Rule: x = y * 1 or x = 1 * y -> x = y
+        modified_line = re.sub(r'=\s*([\w.\(\)\[\]]+)\s*\*\s*1\b', r'= \1', modified_line) # y * 1
+        modified_line = re.sub(r'=\s*1\s*\*\s*([\w.\(\)\[\]]+)\b', r'= \1', modified_line) # 1 * y
 
         # Rule: x = y * 0 or x = 0 * y -> x = 0
-        line = re.sub(r'=\s*[\w.\(\)]+\s*\*\s*0\b', r'= 0', line) # y * 0
-        line = re.sub(r'=\s*0\s*\*\s*[\w.\(\)]+\b', r'= 0', line) # 0 * y
+        modified_line = re.sub(r'=\s*[\w.\(\)\[\]]+\s*\*\s*0\b', r'= 0', modified_line) # y * 0
+        modified_line = re.sub(r'=\s*0\s*\*\s*[\w.\(\)\[\]]+\b', r'= 0', modified_line) # 0 * y
 
         # Rule: x = y - 0 -> x = y
-        line = re.sub(r'=\s*([\w.\(\)]+)\s*-\s*0\b', r'= \1', line) # y - 0
+        modified_line = re.sub(r'=\s*([\w.\(\)\[\]]+)\s*-\s*0\b', r'= \1', modified_line) # y - 0
 
          # Rule: x = y / 1 -> x = y
-        line = re.sub(r'=\s*([\w.\(\)]+)\s*/\s*1\b', r'= \1', line) # y / 1
+        modified_line = re.sub(r'=\s*([\w.\(\)\[\]]+)\s*/\s*1\b', r'= \1', modified_line) # y / 1
 
-        optimized_lines.append(line)
-        if line != original_line:
-            print(f"Simplified: '{original_line.strip()}' -> '{line.strip()}'")
+        # Preserve original indentation if possible (crude)
+        leading_whitespace = line[:len(line) - len(line.lstrip())]
+        final_line = leading_whitespace + modified_line
+
+        optimized_lines.append(final_line)
+        if final_line != line: # Compare with original including whitespace
+            print(f"Simplified: '{line.strip()}' -> '{final_line.strip()}'")
 
     return optimized_lines
 
 
 def common_subexpression_elimination(code_lines):
-    """Performs basic common subexpression elimination within basic blocks (here, lines)."""
-    optimized_lines = []
-    expressions = {} # Store expression -> temp_variable mapping
+    """Performs basic common subexpression elimination within basic blocks (list of lines)."""
+    expressions = {} # Store canonical_expression -> temp_variable mapping
     temp_count = 0
+    optimized_block = [] # Build the final block including temps
+    var_to_temp = {} # Track which temp currently holds the value for a variable
+
     print("\n--- Applying Common Subexpression Elimination ---")
 
-    final_optimized_block = [] # Build the final block here
-
     for line in code_lines:
-        original_line = line
-        # Basic pattern matching for assignment: var = operand1 op operand2
-        match = re.match(r'\s*(\w+)\s*=\s*([\w.\(\)]+)\s*([+\-*/])\s*([\w.\(\)]+)\s*;?\s*$', line)
-        is_complex_assignment = bool(match)
+        original_line = line.strip()
+        leading_whitespace = line[:len(line) - len(line.lstrip())]
 
-        if is_complex_assignment:
-            target_var = match.group(1).strip()
-            operand1 = match.group(2).strip()
-            op = match.group(3).strip()
-            operand2 = match.group(4).strip()
-            # Canonical expression form (e.g., sort operands for commutative ops)
-            if op in ['+', '*'] and operand1 > operand2:
-                 expression = f"{operand2} {op} {operand1}" # Sort operands
+        # Pattern: var = operand1 op operand2 ; (optional semicolon)
+        match = re.match(r'\s*([a-zA-Z_]\w*)\s*=\s*([\w.\(\)\[\]]+)\s*([+\-*/])\s*([\w.\(\)\[\]]+)\s*;?\s*$', original_line)
+
+        if match:
+            target_var = match.group(1)
+            op1_orig = match.group(2)
+            op = match.group(3)
+            op2_orig = match.group(4)
+
+            # Use the most recent temp if operands were results of previous CSE
+            op1 = var_to_temp.get(op1_orig, op1_orig)
+            op2 = var_to_temp.get(op2_orig, op2_orig)
+
+            # Canonical expression form (sort operands for commutative ops)
+            if op in ['+', '*'] and op1 > op2:
+                 expression = f"{op2} {op} {op1}"
             else:
-                 expression = f"{operand1} {op} {operand2}"
+                 expression = f"{op1} {op} {op2}"
 
             if expression in expressions:
-                # Found common subexpression
+                # Found common subexpression, use existing temp
                 temp_var = expressions[expression]
-                line = f"{target_var} = {temp_var}" # Replace with assignment from temp
-                print(f"CSE: Replaced '{original_line.strip()}' with '{line.strip()}' (using {temp_var})")
-                final_optimized_block.append(line) # Add the modified assignment
+                assign_line = f"{target_var} = {temp_var}"
+                print(f"CSE: Replaced '{original_line}' with '{assign_line}' (using {temp_var})")
+                optimized_block.append(leading_whitespace + assign_line)
+                var_to_temp[target_var] = temp_var # Target var now holds value from this temp
             else:
-                 # New expression encountered, store it
+                 # New expression, introduce temp
                  temp_count += 1
                  new_temp = f"t{temp_count}"
                  expressions[expression] = new_temp
-                 # Insert the temp calculation *before* the current line
-                 temp_calc_line = f"{new_temp} = {expression}"
-                 final_optimized_block.append(temp_calc_line)
-                 # Current line now uses the temp
-                 line = f"{target_var} = {new_temp}"
-                 final_optimized_block.append(line)
-                 print(f"CSE: Introduced '{temp_calc_line}' for '{original_line.strip()}'")
+                 var_to_temp[target_var] = new_temp # Target var will hold value from new temp
+
+                 temp_calc_line = f"{new_temp} = {expression}" # Use resolved op1, op2
+                 optimized_block.append(leading_whitespace + temp_calc_line)
+
+                 assign_line = f"{target_var} = {new_temp}"
+                 optimized_block.append(leading_whitespace + assign_line)
+                 print(f"CSE: Introduced '{temp_calc_line}' for '{original_line}'")
         else:
-            # Not a complex assignment, keep the line as is
-             final_optimized_block.append(original_line)
+            # Not a binary expression assignment, check for simple assignment like 'x = y'
+            match_simple = re.match(r'\s*([a-zA-Z_]\w*)\s*=\s*([\w.\(\)\[\]]+)\s*;?\s*$', original_line)
+            if match_simple:
+                 target_var = match_simple.group(1)
+                 source_var_orig = match_simple.group(2)
+                 # Propagate temps: if y = t1, then x = y becomes x = t1
+                 source_var = var_to_temp.get(source_var_orig, source_var_orig)
+                 optimized_block.append(f"{leading_whitespace}{target_var} = {source_var}")
+                 var_to_temp[target_var] = source_var # x now holds same value as source
+                 if source_var != source_var_orig:
+                      print(f"CSE (Prop): Changed '{original_line}' to '{target_var} = {source_var}'")
 
+            else:
+                 # Keep lines that don't match assignment patterns (like print, calls, etc.)
+                 optimized_block.append(line)
+                 # Invalidate temps if this line potentially modifies variables used in expressions? (More complex)
 
-    return final_optimized_block
+    return optimized_block
 
 # --- Example Usage ---
 input_code_alg_cse = [
-    "a = b + 0",      # Algebraic Simplification
-    "c = d * 1",      # Algebraic Simplification
-    "e = f * 0",      # Algebraic Simplification
-    "x = y + z",      # Expression 1
-    "p = y + z",      # Common Subexpression (should become p = t1)
-    "q = z + y",      # Common Subexpression (commutative, should become q = t1)
-    "r = p * 2",      # Uses result of CSE (depends on p or t1) -> t2 = t1 * 2; r = t2
-    "s = y + z"       # Common Subexpression again (should become s = t1)
+    "  a = b + 0;",      # Algebraic Simplification
+    "  c = d * 1;",      # Algebraic Simplification
+    "  e = f * 0;",      # Algebraic Simplification
+    "  x = y + z;",      # Expression 1 -> t1 = y + z; x = t1
+    "  p = y + z;",      # Common Subexpression -> p = t1
+    "  q = z + y;",      # Common Subexpression (commutative) -> q = t1
+    "  temp = p * 2;",   # Uses result of CSE (p=t1) -> t2 = t1 * 2; temp = t2
+    "  r = temp;",       # Simple assignment -> r = t2
+    "  s = y + z;"       # Common Subexpression again -> s = t1
 ]
 
 print("--- Original Code ---")
 for l in input_code_alg_cse: print(l)
 
 simplified_code = algebraic_simplification(input_code_alg_cse)
-# Apply CSE iteratively until no more changes? For simplicity, one pass here.
+# Apply CSE iteratively? For simplicity, one pass here.
 final_code = common_subexpression_elimination(simplified_code)
 
 print("\n--- Final Optimized Code ---")
 for l in final_code:
-    print(l.strip())
+    print(l) # Preserve generated indentation
 
-</code></pre>
+                    </code></pre>
                  </div>
             </div>
 
             <!-- Dead Code / Constant Prop -->
             <div>
-                <h3 class="text-xl">6b. Dead Code Elimination & Constant Propagation</h3>
+                <h3 id="target-optimize-6b" class="text-xl">6b. Dead Code Elimination & Constant Propagation</h3>
                 <p>Simple simulation of removing unused variable assignments (dead code) and replacing variable usage with known constants.</p>
                  <div class="run-command">
                     <strong>Language:</strong> Python<br>
@@ -1850,115 +2145,126 @@ for l in final_code:
                 <div class="code-block-container">
                     <button class="copy-btn" data-target-id="code-optimize-6b">Copy</button>
                     <pre id="code-optimize-6b"><code class="language-python">
+# Paste Python code for Optimization 6b here...
+# (Code from previous answer)
 import re
-import ast # Abstract Syntax Trees can be more robust for analysis
 
 def constant_propagation(code_lines):
-    """Performs simple constant propagation using string replacement (limited)."""
+    """Performs simple constant propagation using string replacement."""
     optimized_lines = []
     constants = {} # variable -> constant value (string representation)
     print("--- Applying Constant Propagation ---")
 
-    for line in code_lines:
-        original_line = line
-        modified = False
+    for line_num, line in enumerate(code_lines):
+        original_line = line.strip()
+        leading_whitespace = line[:len(line) - len(line.lstrip())]
+        current_line_content = original_line # Work on stripped content
 
-        # Pattern: var = constant_literal ; (optional semicolon and whitespace)
-        match_assign = re.match(r'\s*([a-zA-Z_]\w*)\s*=\s*(-?\d+(\.\d+)?)\s*;?\s*$', line)
-        if match_assign:
-            var = match_assign.group(1)
-            value = match_assign.group(2)
-            constants[var] = value # Store known constant
-            print(f"  Found constant assignment: {var} = {value}")
-            optimized_lines.append(line) # Keep assignment for now
-            continue
-
-        # Substitute known constants in expressions on RHS
-        current_line = line
-        # Split line at '=' to only modify RHS
-        parts = current_line.split('=', 1)
+        # Substitute known constants first, before checking for new assignments
+        modified_rhs = False
+        parts = current_line_content.split('=', 1)
         if len(parts) == 2:
-            lhs = parts[0]
+            lhs = parts[0].strip()
             rhs = parts[1]
-            original_rhs = rhs # Keep original RHS for comparison
+            original_rhs = rhs
             for var, value in constants.items():
-                # Use regex with word boundaries to replace variable occurrences on RHS
+                # Use regex with word boundaries to replace variables on RHS
                 rhs = re.sub(r'\b' + re.escape(var) + r'\b', value, rhs)
 
             if rhs != original_rhs:
-                current_line = lhs + '= ' + rhs # Reconstruct line
-                modified = True
-                print(f"Propagated Const: '{original_line.strip()}' -> '{current_line.strip()}'")
-        # else: line has no '=', substitute anywhere (less common for propagation)
-        #    original_line_part = current_line
-        #    for var, value in constants.items():
-        #        current_line = re.sub(r'\b' + re.escape(var) + r'\b', value, current_line)
-        #    if current_line != original_line_part: modified = True
+                current_line_content = lhs + ' = ' + rhs
+                modified_rhs = True
 
-        optimized_lines.append(current_line)
+        # Now check if THIS line assigns a new constant
+        # Pattern: var = constant_literal ; (optional semicolon and whitespace)
+        match_assign = re.match(r'\s*([a-zA-Z_]\w*)\s*=\s*(-?\d+(\.\d+)?)\s*;?\s*$', current_line_content) # Check modified line
+        if match_assign:
+            var = match_assign.group(1)
+            value = match_assign.group(2)
+            # Only update if it's truly constant on RHS, not e.g. x = 5 after propagation made RHS 5
+            # We check the original line's RHS for the constant pattern
+            original_match_const = re.match(r'\s*([a-zA-Z_]\w*)\s*=\s*(-?\d+(\.\d+)?)\s*;?\s*$', original_line)
+            if original_match_const:
+                 constants[var] = value # Store known constant from original assignment
+                 print(f"  Found constant assignment: {var} = {value} (Line {line_num+1})")
+
+        if modified_rhs:
+            print(f"Propagated Const: '{original_line}' -> '{current_line_content}' (Line {line_num+1})")
+
+        optimized_lines.append(leading_whitespace + current_line_content) # Add the potentially modified line with original indent
 
     return optimized_lines, constants
 
-def dead_code_elimination(code_lines, constants_found):
-    """Performs simple dead code elimination (unused assignments)."""
-    # This is tricky with string processing. Using AST would be better.
-    # Simple approach: track assigned variables and check if they are used later on RHS.
-    used_vars = set()
-    assignments = {} # target_var -> line_index
 
-    # Pass 1: Identify used variables on RHS and track assignments
-    print("\n--- Analyzing Variable Usage ---")
-    for i, line in enumerate(code_lines):
-        # Check LHS for assignment
-        match_assign = re.match(r'\s*([a-zA-Z_]\w*)\s*=', line)
-        if match_assign:
-            target_var = match_assign.group(1)
-            assignments[target_var] = i # Store index of last assignment
-            print(f"  Line {i}: Assigns to '{target_var}'")
+def dead_code_elimination(code_lines):
+    """Performs simple dead code elimination based on usage analysis."""
+    # This requires multiple passes or more sophisticated analysis (like live variable analysis)
+    # Simple approach: Find all variables read *before* they are potentially overwritten.
+    # Then remove assignments to variables that are never read.
 
-        # Check RHS for usage
-        parts = line.split('=', 1)
-        rhs = parts[1] if len(parts) == 2 else line # Consider whole line if no '='
-        # Find potential variables used in RHS (simple identifier match)
-        found_in_rhs = re.findall(r'\b([a-zA-Z_]\w*)\b', rhs)
-        # Also consider variables used in print/return/conditions (very basic check)
-        if 'print' in line or 'return' in line or 'if' in line or 'while' in line:
-             found_in_rhs.extend(re.findall(r'\b([a-zA-Z_]\w*)\b', line))
+    print("\n--- Applying Dead Code Elimination (Simple) ---")
+    optimized_lines = list(code_lines) # Start with a copy
+    changed = True
+    max_passes = 10 # Safety limit
+    passes = 0
 
-        # Exclude the target variable itself from being marked as 'used' by its own assignment line
-        target_on_this_line = match_assign.group(1) if match_assign else None
-        for var in found_in_rhs:
-             if var != target_on_this_line:
-                 used_vars.add(var)
-                 # print(f"  Line {i}: Uses '{var}'") # Can be verbose
+    while changed and passes < max_passes:
+        passes += 1
+        print(f"  Pass {passes}...")
+        changed = False
+        used_vars = set()
+        assignments = {} # target_var -> last assignment line index
 
-    print(f"  Variables used on RHS or in output/conditions: {used_vars}")
+        # Pass 1 (within loop): Identify used variables and last assignments
+        for i, line in enumerate(optimized_lines):
+            line_strip = line.strip()
+            # Find variables used on RHS or in conditions/output
+            parts = line_strip.split('=', 1)
+            rhs_or_full = parts[1] if len(parts) == 2 else line_strip
+            # Simple regex to find potential variable names
+            read_vars = re.findall(r'\b([a-zA-Z_]\w*)\b', rhs_or_full)
+            used_vars.update(read_vars)
 
-    # Pass 2: Filter out lines assigning to unused variables
-    optimized_lines = []
-    print("\n--- Applying Dead Code Elimination ---")
-    removed_count = 0
-    for i, line in enumerate(code_lines):
-        is_dead = False
-        match_assign = re.match(r'\s*([a-zA-Z_]\w*)\s*=', line)
-        if match_assign:
-            target_var = match_assign.group(1)
-            # Considered dead IF:
-            # 1. It's the last assignment to this variable (i == assignments[target_var])
-            # 2. The variable is NOT in the set of used variables
-            if i == assignments.get(target_var, -1) and target_var not in used_vars:
-                 is_dead = True
-                 print(f"Dead Code: Removed '{line.strip()}' (variable '{target_var}' assigned but never used)")
-                 removed_count += 1
+            # Track assignments
+            match_assign = re.match(r'\s*([a-zA-Z_]\w*)\s*=', line_strip)
+            if match_assign:
+                target_var = match_assign.group(1)
+                assignments[target_var] = i
 
-        if not is_dead:
-            optimized_lines.append(line)
+        # Pass 2 (within loop): Filter out dead assignments
+        new_optimized_lines = []
+        removed_in_pass = False
+        for i, line in enumerate(optimized_lines):
+            line_strip = line.strip()
+            is_dead = False
+            match_assign = re.match(r'\s*([a-zA-Z_]\w*)\s*=', line_strip)
+            if match_assign:
+                target_var = match_assign.group(1)
+                # Dead if it's the last assignment AND the variable is never used
+                if i == assignments.get(target_var, -1) and target_var not in used_vars:
+                    # Exception: Don't remove assignment if it involves function call or complex RHS
+                    # This simple check doesn't handle side effects well.
+                    if '(' not in line and '[' not in line: # Crude check for calls/arrays
+                        is_dead = True
+                        print(f"  Dead Code Removed (Pass {passes}): '{line_strip}'")
+                        removed_in_pass = True
 
-    if removed_count == 0:
-        print("No dead assignment code found with this simple analysis.")
+            if not is_dead:
+                new_optimized_lines.append(line)
+
+        if removed_in_pass:
+            changed = True
+            optimized_lines = new_optimized_lines # Update list for next pass
+        else:
+            changed = False # No changes in this pass, convergence
+
+    if passes >= max_passes:
+        print("Warning: Dead code elimination reached max passes.")
+    if not any(line.strip().startswith("Dead Code Removed") for line in open("debug_log.txt","w")): # Poor way to check if anything printed
+         print("  No dead assignments identified.")
+
 
     return optimized_lines
-
 
 # --- Example Usage ---
 input_code_dead_const = [
@@ -1967,28 +2273,30 @@ input_code_dead_const = [
     "z = 10;",         # Another constant
     "a = y * z;",      # Use constants y, z -> a = 7 * 10
     "b = a - x;",      # Use constants a, x -> b = 70 - 5
-    "dead_var = z + 1;",# Assignment to dead_var (never used)
+    "dead_var = z + 1;",# Assignment to dead_var (never used) -> Should be removed
     "c = y + 5;",      # Use constant y -> c = 7 + 5
-    "x = 99;",         # x is reassigned, but this new value might not be used
-    "dead_again = x;", # This assignment might be dead if 'dead_again' isn't used
+    "x = 99;",         # x is reassigned, but this new value is never used -> Should be removed
+    "dead_again = x;", # Assigns 99 to dead_again (which isn't used) -> Should be removed
     "print(a);",       # Uses 'a'
     "print(b);",       # Uses 'b'
     "print(c);"        # Uses 'c'
-    # 'z' is used only in dead_var assignment (so z might be considered dead too in a deeper analysis)
-    # 'x' is used in 'b = a - x', but the final assignment 'x=99' is dead.
-    # 'y' is used.
 ]
 
 print("--- Original Code ---")
 for l in input_code_dead_const: print(l)
 
+# Step 1: Constant Propagation
 propagated_code, found_constants = constant_propagation(input_code_dead_const)
-final_code = dead_code_elimination(propagated_code, found_constants)
+print("\n--- Code after Constant Propagation ---")
+for l in propagated_code: print(l.strip())
+
+# Step 2: Dead Code Elimination
+final_code = dead_code_elimination(propagated_code)
 
 print("\n--- Final Optimized Code ---")
 for l in final_code:
     print(l.strip())
-</code></pre>
+                    </code></pre>
                  </div>
             </div>
         </div>
@@ -2001,7 +2309,7 @@ for l in final_code:
 
             <!-- Triples -->
             <div>
-                <h3 class="text-xl">7a. Using Triples</h3>
+                <h3 id="target-icg-7a" class="text-xl">7a. Using Triples</h3>
                 <p>Generates 3-Address Code in the form of Triples (Operator, Operand1, Operand2) for simple arithmetic expressions.</p>
                  <div class="run-command">
                     <strong>Language:</strong> Python<br>
@@ -2010,6 +2318,8 @@ for l in final_code:
                  <div class="code-block-container">
                     <button class="copy-btn" data-target-id="code-icg-7a">Copy</button>
                     <pre id="code-icg-7a"><code class="language-python">
+# Paste Python code for ICG Triples 7a here...
+# (Code from previous answer)
 # Global counter for triples
 triple_index = 0
 triples = [] # List to store the generated triples: {'index': i, 'op': o, 'arg1': a1, 'arg2': a2}
@@ -2018,14 +2328,14 @@ symbol_results = {} # Track which variable holds the result of which triple inde
 def generate_triple(op, arg1, arg2):
     """Adds a new triple to the list and returns its index reference."""
     global triple_index, triples
-    # Check if args are references to previous triples (e.g., '(0)')
-    # In a real parser, args would be variable names or temporary results (indices)
-    arg1_ref = symbol_results.get(arg1, arg1) # Use index if var holds previous result
+    # Resolve args: if an arg is a variable that holds result of a previous triple, use the reference
+    arg1_ref = symbol_results.get(arg1, arg1) # Use index ref if var holds previous result
     arg2_ref = symbol_results.get(arg2, arg2)
 
     triples.append({'index': triple_index, 'op': op, 'arg1': arg1_ref, 'arg2': arg2_ref})
     current_index = triple_index
     triple_index += 1
+    print(f"  Generated Triple ({current_index}): ({op}, {arg1_ref}, {arg2_ref})") # Debug print
     return f"({current_index})" # Return reference string '(index)'
 
 def process_expression_triples(expr):
@@ -2035,6 +2345,7 @@ def process_expression_triples(expr):
        Returns the index reference string representing the final result.
     """
     # Very basic parsing - assumes simple 'arg1 op arg2' or just 'arg1'
+    # Doesn't handle operator precedence or parentheses.
     parts = expr.split()
     if len(parts) == 3:
         op = parts[1]
@@ -2043,25 +2354,26 @@ def process_expression_triples(expr):
         if op in ['+', '-', '*', '/']:
             return generate_triple(op, arg1, arg2)
         else:
-            print(f"Warning: Unsupported operator '{op}'")
+            print(f"Warning: Unsupported operator '{op}' in expression '{expr}'")
             return expr # Return expression as is
     elif len(parts) == 1:
-        # If it's already a reference or a variable/literal, return it
+        # If it's a variable that holds a previous result, return the reference
+        # Otherwise, return the variable/literal itself
         return symbol_results.get(parts[0], parts[0])
     else:
-         print(f"Warning: Cannot process complex expression '{expr}'")
+         print(f"Warning: Cannot process complex expression '{expr}' with simple parser")
          return expr # Return as is
 
 # --- Example Usage ---
 input_statements_triples = [
-    "a = b + c",
-    "d = a * e",
-    "f = d + b", # Use d (result of (1)) and b
-    "g = a + d"  # Use a (result of (0)) and d (result of (1))
+    "a = b + c",    # (0) = (+, b, c) | a = (0)
+    "d = a * e",    # (1) = (*, (0), e) | d = (1)
+    "f = d + b",    # (2) = (+, (1), b) | f = (2)
+    "g = a + d"     # (3) = (+, (0), (1)) | g = (3)
 ]
 
 print("--- Generating Triples ---")
-print(f"{'Statement':<15} | {'Generated Triple Index'} | {'Variable Holds Result'}")
+print(f"{'Statement':<15} | {'Action / Variable Assignment'}")
 print("-" * 60)
 
 # Reset global state for fresh run
@@ -2075,10 +2387,14 @@ for stmt in input_statements_triples:
         target_var = parts[0].strip()
         expression = parts[1].strip()
 
-        result_ref = process_expression_triples(expression)
-        symbol_results[target_var] = result_ref # Store reference for target var
+        print(f"{stmt:<15} | Processing expression '{expression}'...")
 
-        print(f"{stmt:<15} | {result_ref:<20} | {target_var} = {result_ref}")
+        # Generate triple(s) for the expression
+        result_ref = process_expression_triples(expression)
+
+        # Record that the target variable now holds the result represented by the reference
+        symbol_results[target_var] = result_ref
+        print(f"{'':<15} | Assigned result {result_ref} to variable '{target_var}'")
 
     else:
          print(f"{stmt:<15} | Skipped (not simple assignment)")
@@ -2087,20 +2403,26 @@ for stmt in input_statements_triples:
 print("\n--- Final Triples Table ---")
 print(f"{'Index':<6}{'Operator':<10}{'Operand 1':<10}{'Operand 2':<10}")
 print("-" * 40)
-for t in triples:
-    print(f"({t['index']:<4}){t['op']:<10}{t['arg1']:<10}{t['arg2']:<10}")
+if not triples:
+     print("(No triples generated)")
+else:
+    for t in triples:
+        print(f"({t['index']:<4}){t['op']:<10}{t['arg1']:<10}{t['arg2']:<10}")
 
 print("\n--- Variable Result Mapping ---")
-for var, ref in symbol_results.items():
-    print(f"{var} holds result of Triple {ref}")
+if not symbol_results:
+    print("(No variables assigned)")
+else:
+    for var, ref in symbol_results.items():
+        print(f"{var} holds the result represented by {ref}")
 
-</code></pre>
+                    </code></pre>
                  </div>
             </div>
 
             <!-- Quadruples -->
             <div>
-                <h3 class="text-xl">7b. Using Quadruples</h3>
+                <h3 id="target-icg-7b" class="text-xl">7b. Using Quadruples</h3>
                 <p>Generates 3-Address Code in the form of Quadruples (Operator, Operand1, Operand2, Result) for simple arithmetic expressions, using temporary variables.</p>
                  <div class="run-command">
                     <strong>Language:</strong> Python<br>
@@ -2109,11 +2431,14 @@ for var, ref in symbol_results.items():
                  <div class="code-block-container">
                      <button class="copy-btn" data-target-id="code-icg-7b">Copy</button>
                     <pre id="code-icg-7b"><code class="language-python">
+# Paste Python code for ICG Quadruples 7b here...
+# (Code from previous answer)
 # Global counter for quadruples and temps
 quad_index = 0
 quadruples = [] # List to store generated quadruples: {'index': i, 'op': o, 'arg1': a1, 'arg2': a2, 'result': r}
 temp_var_count = 0
-symbol_table_temps = {} # Tracks which temp/var holds the current value of a variable/expression
+# Symbol table now maps variable names to the temp/variable currently holding its value
+symbol_table_values = {}
 
 def get_temp():
     """Generates a new temporary variable name."""
@@ -2123,21 +2448,21 @@ def get_temp():
 
 def generate_quad(op, arg1, arg2, result):
     """Adds a new quadruple to the list."""
-    global quad_index, quadruples
-    # Resolve args using the symbol table if they map to temps
-    arg1_resolved = symbol_table_temps.get(arg1, arg1)
-    arg2_resolved = symbol_table_temps.get(arg2, arg2)
+    global quad_index, quadruples, symbol_table_values
+    # Resolve args using the symbol table to find current location of values
+    arg1_loc = symbol_table_values.get(arg1, arg1) # Use temp name if var's value is in a temp
+    arg2_loc = symbol_table_values.get(arg2, arg2)
 
-    quadruples.append({'index': quad_index, 'op': op, 'arg1': arg1_resolved, 'arg2': arg2_resolved, 'result': result})
-    print(f"  Generated Quad ({quad_index}): ({op}, {arg1_resolved}, {arg2_resolved}, {result})") # Debug print
+    quadruples.append({'index': quad_index, 'op': op, 'arg1': arg1_loc, 'arg2': arg2_loc, 'result': result})
+    print(f"  Generated Quad ({quad_index}): ({op}, {arg1_loc}, {arg2_loc}, {result})")
     quad_index += 1
 
 def process_expression_quads(expr):
     """Processes a simple arithmetic expression (e.g., 'a + b')
        and generates quadruples. Returns the name of the variable/temp
-       holding the result. Updates global symbol_table_temps.
+       holding the result. Uses global symbol_table_values.
     """
-    global symbol_table_temps
+    global symbol_table_values
     # Basic parsing for 'arg1 op arg2'
     parts = expr.split()
     if len(parts) == 3:
@@ -2149,24 +2474,25 @@ def process_expression_quads(expr):
             result_temp = get_temp()
             generate_quad(op, arg1, arg2, result_temp)
             # The result of this expression is now stored in result_temp
-            symbol_table_temps[expr] = result_temp # Can map expression itself? Or rely on assignment step.
-            return result_temp # Return the temporary variable
+            # We don't update symbol_table_values here for the expression itself,
+            # only when it's assigned to a variable.
+            return result_temp # Return the temporary variable holding the result
         else:
              print(f"Warning: Unsupported operator '{op}' in expression '{expr}'")
              return expr # Cannot process
     elif len(parts) == 1:
         # Just a variable or literal, return its current location (might be a temp)
-         return symbol_table_temps.get(parts[0], parts[0])
+         return symbol_table_values.get(parts[0], parts[0])
     else:
-        print(f"Warning: Cannot process complex expression '{expr}'")
+        print(f"Warning: Cannot process complex expression '{expr}' with simple parser")
         return expr # Cannot process
 
 # --- Example Usage ---
 input_statements_quads = [
     "a = b + c",    # t1 = b + c; a = t1
-    "d = a * e",    # t2 = a * e; d = t2
-    "f = d + a",    # t3 = d + a; f = t3
-    "g = b + c"     # t4 = b + c; g = t4 (No CSE here, simple ICG)
+    "d = a * e",    # t2 = a * e; d = t2 (uses value of 'a')
+    "f = d + a",    # t3 = d + a; f = t3 (uses values of 'd' and 'a')
+    "g = b + c"     # t4 = b + c; g = t4 (No CSE here, generates new temp)
 ]
 
 print("--- Generating Quadruples ---")
@@ -2177,7 +2503,7 @@ print("-" * 60)
 quad_index = 0
 quadruples = []
 temp_var_count = 0
-symbol_table_temps = {}
+symbol_table_values = {} # Reset symbol table
 
 for stmt in input_statements_quads:
     parts = stmt.split('=', 1)
@@ -2185,20 +2511,20 @@ for stmt in input_statements_quads:
         target_var = parts[0].strip()
         expression = parts[1].strip()
 
-        print(f"{stmt:<15} | Processing...")
+        print(f"{stmt:<15} | Processing expression '{expression}'...")
 
         result_location = process_expression_quads(expression)
 
-        # Generate the final assignment quadruple: target_var = result_location
-        # unless the expression was just a single variable/temp already
-        if result_location != target_var:
-             generate_quad('=', result_location, '', target_var)
+        # Generate the final assignment quadruple if needed
+        # If expression was just a variable (e.g., "a = x"), result_location is where x's value is.
+        # If expression was complex (e.g., "a = b + c"), result_location is a new temp (e.g., "t1").
+        # Assign the value from result_location to target_var.
+        generate_quad('=', result_location, '', target_var)
 
-        # Update symbol table: target_var now holds the value represented by result_location
-        # For simplicity, we often just map target_var to itself after assignment.
-        symbol_table_temps[target_var] = target_var # After 'a = t1', 'a' holds the value.
-        print(f"          -> {target_var} now holds result {symbol_table_temps[target_var]}")
-
+        # Update symbol table: target_var now holds the value previously in result_location
+        # For simplicity, after 'a = t1' or 'a = x', we map 'a' to 'a' itself.
+        symbol_table_values[target_var] = target_var
+        print(f"{'':<15} | -> '{target_var}' now holds the computed value.")
 
     else:
          print(f"{stmt:<15} | Skipped (not simple assignment)")
@@ -2207,10 +2533,20 @@ for stmt in input_statements_quads:
 print("\n--- Final Quadruples Table ---")
 print(f"{'Index':<6}{'Operator':<10}{'Operand 1':<10}{'Operand 2':<10}{'Result':<10}")
 print("-" * 50)
-for q in quadruples:
-    print(f"({q['index']:<4}){q['op']:<10}{q['arg1']:<10}{q['arg2']:<10}{q['result']:<10}")
+if not quadruples:
+     print("(No quadruples generated)")
+else:
+    for q in quadruples:
+        print(f"({q['index']:<4}){q['op']:<10}{q['arg1']:<10}{q['arg2']:<10}{q['result']:<10}")
 
-</code></pre>
+# print("\n--- Final Symbol Table (Value Locations) ---")
+# if not symbol_table_values:
+#      print("(empty)")
+# else:
+#      for var, loc in symbol_table_values.items():
+#          print(f"{var} -> {loc}")
+
+                    </code></pre>
                  </div>
             </div>
         </div>
@@ -2228,37 +2564,67 @@ for q in quadruples:
 
             // --- Copy Button Functionality ---
             const copyButtons = document.querySelectorAll('.copy-btn');
-
             copyButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const targetId = button.dataset.targetId;
                     const targetElement = document.getElementById(targetId);
-
                     if (targetElement) {
-                        const codeToCopy = targetElement.textContent; // Get text content
-
+                        const codeToCopy = targetElement.textContent;
                         navigator.clipboard.writeText(codeToCopy).then(() => {
-                            // Success feedback
                             button.textContent = 'Copied!';
-                            button.classList.add('copied'); // Optional: for styling feedback
+                            button.classList.add('copied');
                             setTimeout(() => {
                                 button.textContent = 'Copy';
                                 button.classList.remove('copied');
-                            }, 2000); // Reset after 2 seconds
+                            }, 1500); // Shorter timeout
                         }).catch(err => {
                             console.error('Failed to copy text: ', err);
                             button.textContent = 'Error';
-                             setTimeout(() => {
-                                button.textContent = 'Copy';
-                            }, 2000);
+                             setTimeout(() => { button.textContent = 'Copy'; }, 2000);
                         });
                     } else {
                         console.error('Target element not found for ID:', targetId);
                         button.textContent = 'Error';
                     }
                 });
+            }); // --- End Copy Button ---
+
+
+            // --- Scroll Button Functionality ---
+            const scrollButtons = document.querySelectorAll('.scroll-btn');
+            const scrollToTopButton = document.getElementById('scroll-to-top-btn');
+
+            scrollButtons.forEach(button => {
+                 // Skip the top button which is handled separately
+                 if(button.id === 'scroll-to-top-btn') return;
+
+                 button.addEventListener('click', () => {
+                    const targetId = button.dataset.scrollTarget;
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        // Calculate offset if needed (e.g., for sticky header)
+                        const headerOffset = 80; // Adjust based on your header height
+                        const elementPosition = targetElement.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                        window.scrollTo({
+                             top: offsetPosition,
+                             behavior: 'smooth'
+                        });
+                        // Alternatively, simpler scroll without offset calculation:
+                        // targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } else {
+                        console.warn('Scroll target not found:', targetId);
+                    }
+                });
             });
-            // --- End Copy Button Functionality ---
+
+            if(scrollToTopButton) {
+                 scrollToTopButton.addEventListener('click', () => {
+                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                 });
+            } // --- End Scroll Button ---
+
         });
     </script>
 
